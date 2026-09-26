@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "traceproof"
+version = "0.1.0"
+description = "Requirements traceability audit toolkit"
+requires-python = ">=3.11"
+dependencies = [
+    "pdfplumber",
+    "python-docx",
+    "mcp",
+    "jinja2",
+]
+
+[project.scripts]
+traceproof = "traceproof.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["traceproof*"]

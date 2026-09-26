@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# TraceProof working state (committed after the S6 audit)
+demo/payflow/.traceproof/

@@ -1,164 +1,191 @@
 [
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_rejects_unsupported_currency",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_accepts_supported_currency",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_rejects_non_positive_amount",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf002_rejects_amount_above_limit",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf002_accepts_amount_at_limit",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf004_rejects_float_amount",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_idempotent_create_returns_same_payment",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_refund_cannot_exceed_capture",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_state_changes_are_audited",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_invalid_transition_rejected",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_rate_limit_per_merchant",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_timestamps_are_utc_iso8601",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_happy_path_lifecycle",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf005_refund_within_30_days_allowed",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf005_refund_after_30_days_rejected",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf005_refund_rejected_at_old_60day_boundary",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf008_full_pan_not_logged",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf011_above_50k_requires_step_up",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf011_above_50k_with_step_up_succeeds",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf011_below_50k_no_step_up_needed",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf009_retries_3_times_on_5xx",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf009_exponential_backoff_sequence",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf009_4xx_not_retried",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf009_timeout_triggers_retry",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf013_stale_rate_rejected",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
+    "req_id": "",
+    "path": "",
+    "line": 0,
     "node": "tests/test_payments.py::test_pf013_fresh_rate_accepted",
-    "file": "",
-    "line": 0,
     "passed": true
   },
   {
-    "node": "tests/test_payments.py::test_pf013_rate_exactly_15min_accepted",
-    "file": "",
+    "req_id": "",
+    "path": "",
     "line": 0,
+    "node": "tests/test_payments.py::test_pf013_rate_exactly_15min_accepted",
     "passed": true
   }
 ]

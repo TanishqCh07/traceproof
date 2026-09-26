@@ -232,7 +232,9 @@
       "line": 16,
       "docstring": "",
       "value": "logging.getLogger('payflow')",
-      "req_ids": []
+      "req_ids": [
+        "PF-005"
+      ]
     },
     {
       "name": "IDEMPOTENCY_TTL",
@@ -241,7 +243,10 @@
       "line": 18,
       "docstring": "",
       "value": "timedelta(hours=24)",
-      "req_ids": []
+      "req_ids": [
+        "PF-005",
+        "PF-011"
+      ]
     },
     {
       "name": "REFUND_WINDOW",
@@ -249,14 +254,29 @@
       "path": "payflow/service.py",
       "line": 19,
       "docstring": "",
-      "value": "timedelta(days=60)",
-      "req_ids": []
+      "value": "timedelta(days=30)",
+      "req_ids": [
+        "PF-005",
+        "PF-011"
+      ]
+    },
+    {
+      "name": "STEP_UP_THRESHOLD_INR",
+      "kind": "constant",
+      "path": "payflow/service.py",
+      "line": 22,
+      "docstring": "",
+      "value": "Decimal('50000.00')",
+      "req_ids": [
+        "PF-005",
+        "PF-011"
+      ]
     },
     {
       "name": "PaymentService",
       "kind": "class",
       "path": "payflow/service.py",
-      "line": 22,
+      "line": 25,
       "docstring": "",
       "value": "",
       "req_ids": []
@@ -265,7 +285,7 @@
       "name": "__init__",
       "kind": "method",
       "path": "payflow/service.py",
-      "line": 23,
+      "line": 26,
       "docstring": "",
       "value": "",
       "req_ids": []
@@ -274,18 +294,19 @@
       "name": "create_payment",
       "kind": "method",
       "path": "payflow/service.py",
-      "line": 33,
+      "line": 36,
       "docstring": "",
       "value": "",
       "req_ids": [
-        "PF-003"
+        "PF-003",
+        "PF-008"
       ]
     },
     {
       "name": "_transition",
       "kind": "method",
       "path": "payflow/service.py",
-      "line": 61,
+      "line": 65,
       "docstring": "",
       "value": "",
       "req_ids": []
@@ -294,16 +315,18 @@
       "name": "authorize",
       "kind": "method",
       "path": "payflow/service.py",
-      "line": 68,
+      "line": 72,
       "docstring": "",
       "value": "",
-      "req_ids": []
+      "req_ids": [
+        "PF-011"
+      ]
     },
     {
       "name": "capture",
       "kind": "method",
       "path": "payflow/service.py",
-      "line": 74,
+      "line": 85,
       "docstring": "",
       "value": "",
       "req_ids": []
@@ -312,7 +335,7 @@
       "name": "refund",
       "kind": "method",
       "path": "payflow/service.py",
-      "line": 80,
+      "line": 91,
       "docstring": "",
       "value": "",
       "req_ids": []
@@ -324,22 +347,26 @@
       "line": 8,
       "docstring": "",
       "value": "{'INR', 'USD', 'EUR'}",
-      "req_ids": []
+      "req_ids": [
+        "PF-002"
+      ]
     },
     {
       "name": "MAX_TXN_AMOUNT_INR",
       "kind": "constant",
       "path": "payflow/validation.py",
-      "line": 11,
+      "line": 12,
       "docstring": "",
-      "value": "Decimal('200000.00')",
-      "req_ids": []
+      "value": "Decimal('100000.00')",
+      "req_ids": [
+        "PF-002"
+      ]
     },
     {
       "name": "validate_currency",
       "kind": "function",
       "path": "payflow/validation.py",
-      "line": 14,
+      "line": 15,
       "docstring": "",
       "value": "",
       "req_ids": []
@@ -348,7 +375,7 @@
       "name": "to_minor_units",
       "kind": "function",
       "path": "payflow/validation.py",
-      "line": 21,
+      "line": 22,
       "docstring": "Convert a decimal major-unit amount to integer minor units.\n\n    Floats are rejected so we never introduce binary rounding errors.",
       "value": "",
       "req_ids": []
@@ -357,7 +384,7 @@
       "name": "validate_amount",
       "kind": "function",
       "path": "payflow/validation.py",
-      "line": 32,
+      "line": 33,
       "docstring": "",
       "value": "",
       "req_ids": []
@@ -366,7 +393,7 @@
       "name": "CARD",
       "kind": "constant",
       "path": "tests/test_payments.py",
-      "line": 9,
+      "line": 16,
       "docstring": "",
       "value": "'4111111111111111'",
       "req_ids": []
@@ -375,7 +402,43 @@
       "name": "svc",
       "kind": "function",
       "path": "tests/test_payments.py",
-      "line": 13,
+      "line": 20,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "flaky",
+      "kind": "method",
+      "path": "tests/test_payments.py",
+      "line": 216,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "flaky",
+      "kind": "method",
+      "path": "tests/test_payments.py",
+      "line": 231,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "client_error",
+      "kind": "method",
+      "path": "tests/test_payments.py",
+      "line": 246,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "timeout_then_ok",
+      "kind": "method",
+      "path": "tests/test_payments.py",
+      "line": 260,
       "docstring": "",
       "value": "",
       "req_ids": []
@@ -385,7 +448,7 @@
     {
       "name": "test_rejects_unsupported_currency",
       "path": "tests/test_payments.py",
-      "line": 17,
+      "line": 28,
       "node": "tests/test_payments.py::test_rejects_unsupported_currency",
       "asserted_literals": [
         "UNSUPPORTED_CURRENCY"
@@ -395,7 +458,7 @@
     {
       "name": "test_accepts_supported_currency",
       "path": "tests/test_payments.py",
-      "line": 23,
+      "line": 34,
       "node": "tests/test_payments.py::test_accepts_supported_currency",
       "asserted_literals": [
         "INR"
@@ -405,7 +468,7 @@
     {
       "name": "test_rejects_non_positive_amount",
       "path": "tests/test_payments.py",
-      "line": 28,
+      "line": 39,
       "node": "tests/test_payments.py::test_rejects_non_positive_amount",
       "asserted_literals": [
         "INVALID_AMOUNT"
@@ -413,19 +476,43 @@
       "req_ids": []
     },
     {
-      "name": "test_large_payment_within_limit",
+      "name": "test_pf002_rejects_amount_above_limit",
       "path": "tests/test_payments.py",
-      "line": 34,
-      "node": "tests/test_payments.py::test_large_payment_within_limit",
+      "line": 46,
+      "node": "tests/test_payments.py::test_pf002_rejects_amount_above_limit",
       "asserted_literals": [
-        "15000000"
+        "AMOUNT_LIMIT_EXCEEDED"
+      ],
+      "req_ids": [
+        "PF-002"
+      ]
+    },
+    {
+      "name": "test_pf002_accepts_amount_at_limit",
+      "path": "tests/test_payments.py",
+      "line": 53,
+      "node": "tests/test_payments.py::test_pf002_accepts_amount_at_limit",
+      "asserted_literals": [
+        "10000000"
       ],
       "req_ids": []
     },
     {
+      "name": "test_pf004_rejects_float_amount",
+      "path": "tests/test_payments.py",
+      "line": 60,
+      "node": "tests/test_payments.py::test_pf004_rejects_float_amount",
+      "asserted_literals": [
+        "INVALID_AMOUNT"
+      ],
+      "req_ids": [
+        "PF-004"
+      ]
+    },
+    {
       "name": "test_idempotent_create_returns_same_payment",
       "path": "tests/test_payments.py",
-      "line": 39,
+      "line": 68,
       "node": "tests/test_payments.py::test_idempotent_create_returns_same_payment",
       "asserted_literals": [
         "1"
@@ -435,7 +522,7 @@
     {
       "name": "test_refund_cannot_exceed_capture",
       "path": "tests/test_payments.py",
-      "line": 46,
+      "line": 75,
       "node": "tests/test_payments.py::test_refund_cannot_exceed_capture",
       "asserted_literals": [
         "REFUND_EXCEEDS_CAPTURE"
@@ -445,7 +532,7 @@
     {
       "name": "test_state_changes_are_audited",
       "path": "tests/test_payments.py",
-      "line": 56,
+      "line": 85,
       "node": "tests/test_payments.py::test_state_changes_are_audited",
       "asserted_literals": [
         "CREATED",
@@ -461,7 +548,7 @@
     {
       "name": "test_invalid_transition_rejected",
       "path": "tests/test_payments.py",
-      "line": 66,
+      "line": 95,
       "node": "tests/test_payments.py::test_invalid_transition_rejected",
       "asserted_literals": [
         "INVALID_TRANSITION"
@@ -471,7 +558,7 @@
     {
       "name": "test_rate_limit_per_merchant",
       "path": "tests/test_payments.py",
-      "line": 73,
+      "line": 102,
       "node": "tests/test_payments.py::test_rate_limit_per_merchant",
       "asserted_literals": [
         "RATE_LIMITED"
@@ -481,7 +568,7 @@
     {
       "name": "test_timestamps_are_utc_iso8601",
       "path": "tests/test_payments.py",
-      "line": 84,
+      "line": 113,
       "node": "tests/test_payments.py::test_timestamps_are_utc_iso8601",
       "asserted_literals": [
         "0",
@@ -493,9 +580,160 @@
     {
       "name": "test_happy_path_lifecycle",
       "path": "tests/test_payments.py",
-      "line": 91,
+      "line": 121,
       "node": "tests/test_payments.py::test_happy_path_lifecycle",
       "asserted_literals": [],
+      "req_ids": [
+        "PF-011"
+      ]
+    },
+    {
+      "name": "test_pf005_refund_within_30_days_allowed",
+      "path": "tests/test_payments.py",
+      "line": 133,
+      "node": "tests/test_payments.py::test_pf005_refund_within_30_days_allowed",
+      "asserted_literals": [],
+      "req_ids": [
+        "PF-005"
+      ]
+    },
+    {
+      "name": "test_pf005_refund_after_30_days_rejected",
+      "path": "tests/test_payments.py",
+      "line": 143,
+      "node": "tests/test_payments.py::test_pf005_refund_after_30_days_rejected",
+      "asserted_literals": [
+        "REFUND_WINDOW_EXPIRED"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_pf005_refund_rejected_at_old_60day_boundary",
+      "path": "tests/test_payments.py",
+      "line": 156,
+      "node": "tests/test_payments.py::test_pf005_refund_rejected_at_old_60day_boundary",
+      "asserted_literals": [
+        "REFUND_WINDOW_EXPIRED"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_pf008_full_pan_not_logged",
+      "path": "tests/test_payments.py",
+      "line": 173,
+      "node": "tests/test_payments.py::test_pf008_full_pan_not_logged",
+      "asserted_literals": [
+        "1111"
+      ],
+      "req_ids": [
+        "PF-008"
+      ]
+    },
+    {
+      "name": "test_pf011_above_50k_requires_step_up",
+      "path": "tests/test_payments.py",
+      "line": 186,
+      "node": "tests/test_payments.py::test_pf011_above_50k_requires_step_up",
+      "asserted_literals": [
+        "STEP_UP_REQUIRED"
+      ],
+      "req_ids": [
+        "PF-011"
+      ]
+    },
+    {
+      "name": "test_pf011_above_50k_with_step_up_succeeds",
+      "path": "tests/test_payments.py",
+      "line": 194,
+      "node": "tests/test_payments.py::test_pf011_above_50k_with_step_up_succeeds",
+      "asserted_literals": [],
+      "req_ids": []
+    },
+    {
+      "name": "test_pf011_below_50k_no_step_up_needed",
+      "path": "tests/test_payments.py",
+      "line": 201,
+      "node": "tests/test_payments.py::test_pf011_below_50k_no_step_up_needed",
+      "asserted_literals": [],
+      "req_ids": []
+    },
+    {
+      "name": "test_pf009_retries_3_times_on_5xx",
+      "path": "tests/test_payments.py",
+      "line": 212,
+      "node": "tests/test_payments.py::test_pf009_retries_3_times_on_5xx",
+      "asserted_literals": [
+        "4"
+      ],
+      "req_ids": [
+        "PF-009"
+      ]
+    },
+    {
+      "name": "test_pf009_exponential_backoff_sequence",
+      "path": "tests/test_payments.py",
+      "line": 227,
+      "node": "tests/test_payments.py::test_pf009_exponential_backoff_sequence",
+      "asserted_literals": [
+        "1",
+        "2",
+        "4"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_pf009_4xx_not_retried",
+      "path": "tests/test_payments.py",
+      "line": 242,
+      "node": "tests/test_payments.py::test_pf009_4xx_not_retried",
+      "asserted_literals": [
+        "400",
+        "1"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_pf009_timeout_triggers_retry",
+      "path": "tests/test_payments.py",
+      "line": 256,
+      "node": "tests/test_payments.py::test_pf009_timeout_triggers_retry",
+      "asserted_literals": [
+        "ok",
+        "True",
+        "2"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_pf013_stale_rate_rejected",
+      "path": "tests/test_payments.py",
+      "line": 275,
+      "node": "tests/test_payments.py::test_pf013_stale_rate_rejected",
+      "asserted_literals": [
+        "STALE_RATE"
+      ],
+      "req_ids": [
+        "PF-013"
+      ]
+    },
+    {
+      "name": "test_pf013_fresh_rate_accepted",
+      "path": "tests/test_payments.py",
+      "line": 285,
+      "node": "tests/test_payments.py::test_pf013_fresh_rate_accepted",
+      "asserted_literals": [
+        "8350.00"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_pf013_rate_exactly_15min_accepted",
+      "path": "tests/test_payments.py",
+      "line": 294,
+      "node": "tests/test_payments.py::test_pf013_rate_exactly_15min_accepted",
+      "asserted_literals": [
+        "0"
+      ],
       "req_ids": []
     }
   ]

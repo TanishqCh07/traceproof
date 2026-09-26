@@ -1,0 +1,122 @@
+name: TraceProof CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      # ── Step 1: root test suite ────────────────────────────────────────────
+      - name: Run root test suite
+        run: python -m pytest -q
+
+      # ── Step 2: scan (extract reqs, index repo, run payflow tests) ────────
+      - name: TraceProof scan
+        run: |
+          traceproof scan \
+            --spec demo/specs/PayFlow_SRS_v1.2.pdf \
+            --repo demo/payflow
+
+      # ── Step 3: render HTML/CSV/ZIP report ────────────────────────────────
+      - name: TraceProof report
+        run: |
+          traceproof report \
+            --repo demo/payflow \
+            --spec demo/specs/PayFlow_SRS_v1.2.pdf
+
+      # ── Step 4: compliance gate (exit 1 if coverage < 100 %) ──────────────
+      - name: TraceProof check
+        run: traceproof check --repo demo/payflow --min-coverage 100
+
+      # ── Step 5: upload RTM artefacts (always, even on failure) ────────────
+      - name: Upload RTM artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: traceproof-rtm
+          path: demo/payflow/.traceproof/reports/
+
+      # ── Step 6: write markdown summary (always) ───────────────────────────
+      - name: Write job summary
+        if: always()
+        env:
+          PYTHONPATH: .
+        run: |
+          python - >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          import json, pathlib, sys
+          from collections import Counter
+
+          repo       = pathlib.Path("demo/payflow/.traceproof")
+          reqs_file  = repo / "requirements.json"
+          tests_file = repo / "tests.json"
+          ev_file    = repo / "evidence.json"
+
+          if not reqs_file.exists():
+              print("## TraceProof\n\n_Scan artefacts not found — earlier step failed._")
+              sys.exit(0)
+
+          reqs      = json.loads(reqs_file.read_text())
+          total     = len(reqs)
+          tests_raw = json.loads(tests_file.read_text()) if tests_file.exists() else []
+          passed_t  = sum(1 for t in tests_raw if t.get("passed") is True)
+          failed_t  = sum(1 for t in tests_raw if t.get("passed") is False)
+
+          # De-duplicate: last entry per req_id wins (same as store.latest())
+          latest: dict[str, str] = {}
+          if ev_file.exists():
+              for line in ev_file.read_text().splitlines():
+                  line = line.strip()
+                  if line:
+                      rec = json.loads(line)
+                      rid = rec.get("req_id", "")
+                      if rid:
+                          latest[rid] = rec.get("verdict", "PENDING")
+
+          verdict_counts: Counter = Counter(latest.values())
+          covered      = verdict_counts.get("COVERED", 0)
+          coverage_pct = covered / total * 100 if total else 0.0
+          gaps         = total - covered
+
+          out = [
+              "## TraceProof RTM",
+              "",
+              "| Metric | Value |",
+              "|--------|-------|",
+              f"| Requirements | {total} |",
+              f"| **Coverage** | **{coverage_pct:.1f}%** ({covered}/{total}) |",
+              f"| Gaps | {gaps} |",
+              f"| Tests run | {len(tests_raw)} ({passed_t} ✅ / {failed_t} ❌) |",
+              "",
+          ]
+
+          if verdict_counts:
+              out += ["### Verdict breakdown", "", "| Verdict | Count |", "|---------|-------|"]
+              for v, c in sorted(verdict_counts.items()):
+                  out.append(f"| {v} | {c} |")
+              out.append("")
+
+          if gaps > 0:
+              out += ["### Gaps", "", "| Req ID | Priority | Verdict |", "|--------|----------|---------|"]
+              for r in reqs:
+                  rid = r["req_id"]
+                  v   = latest.get(rid, "PENDING")
+                  if v != "COVERED":
+                      out.append(f"| {rid} | {r.get('priority', '?')} | {v} |")
+              out.append("")
+
+          print("\n".join(out))
+          EOF

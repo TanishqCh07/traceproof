@@ -8,7 +8,8 @@ from .models import PaymentError
 SUPPORTED_CURRENCIES = {"INR", "USD", "EUR"}
 
 # Maximum single-transaction amount in INR-equivalent major units.
-MAX_TXN_AMOUNT_INR = Decimal("200000.00")
+# PF-002: 1,00,000 INR = 100 000 INR
+MAX_TXN_AMOUNT_INR = Decimal("100000.00")
 
 
 def validate_currency(currency: str) -> str:

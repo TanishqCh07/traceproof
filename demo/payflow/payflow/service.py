@@ -16,7 +16,10 @@ from .validation import to_minor_units, validate_amount, validate_currency
 log = logging.getLogger("payflow")
 
 IDEMPOTENCY_TTL = timedelta(hours=24)
-REFUND_WINDOW = timedelta(days=60)
+REFUND_WINDOW = timedelta(days=30)  # PF-005: 30-day window
+
+# PF-011: payments above this INR-equivalent amount require step-up auth
+STEP_UP_THRESHOLD_INR = Decimal("50000.00")
 
 
 class PaymentService:
@@ -42,8 +45,9 @@ class PaymentService:
         major = Decimal(str(amount))
         validate_amount(self.rates.to_inr(major, currency))
 
-        log.info("creating payment merchant=%s card=%s amount=%s %s",
-                 merchant_id, card_number, amount, currency)
+        # PF-008: never log full PAN – mask to last four digits
+        log.info("creating payment merchant=%s card=****%s amount=%s %s",
+                 merchant_id, card_number[-4:], amount, currency)
 
         payment = Payment(
             id=str(uuid.uuid4()),
@@ -65,8 +69,15 @@ class PaymentService:
         payment.status = new
         self.audit.record(payment.id, actor, old.value, new.value)
 
-    def authorize(self, payment_id: str, actor: str = "api") -> Payment:
+    def authorize(self, payment_id: str, actor: str = "api",
+                  step_up_verified: bool = False) -> Payment:
+        # PF-011: flag / enforce step-up for high-value payments
         payment = self.payments[payment_id]
+        amount_inr = self.rates.to_inr(
+            Decimal(payment.amount_minor) / 100, payment.currency
+        )
+        if amount_inr > STEP_UP_THRESHOLD_INR and not step_up_verified:
+            raise PaymentError("STEP_UP_REQUIRED", payment_id)
         call_with_retry(self.gateway_fn)
         self._transition(payment, PaymentStatus.AUTHORIZED, actor)
         return payment

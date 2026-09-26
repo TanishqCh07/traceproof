@@ -185,27 +185,29 @@ tr.hidden { display: none; }
     <h1>TraceProof — Requirements Traceability Matrix</h1>
     <div class="header-meta">
       
+      <span><span class="label">Spec</span>PayFlow_SRS_v1.2.pdf</span>
       
-      <span><span class="label">Commit</span><code>8875a8d</code></span>
       
-      <span><span class="label">Generated</span>2026-09-26 13:24 UTC</span>
+      <span><span class="label">Commit</span><code>710134a</code></span>
+      
+      <span><span class="label">Generated</span>2026-09-26 15:07 UTC</span>
       <span><span class="label">Requirements</span>14</span>
-      <span><span class="label">Coverage</span>50.0%</span>
+      <span><span class="label">Coverage</span>100.0%</span>
     </div>
   </header>
 
   <!-- ── KPI row ── -->
   <div class="kpi-row">
     <!-- Coverage ring -->
-    <div class="ring-wrap" title="50.0% covered">
+    <div class="ring-wrap" title="100.0% covered">
       <svg width="96" height="96" viewBox="0 0 96 96">
         <circle class="ring-bg"  cx="48" cy="48" r="38"/>
         <circle class="ring-arc" cx="48" cy="48" r="38"
-          stroke-dasharray="119.38 119.38"
+          stroke-dasharray="238.76 0.0"
           stroke-dashoffset="0"/>
       </svg>
       <div class="ring-label">
-        <span class="ring-pct">50%</span>
+        <span class="ring-pct">100%</span>
         <span class="ring-sub">covered</span>
       </div>
     </div>
@@ -215,31 +217,31 @@ tr.hidden { display: none; }
       
       
       <div class="v-tile v-COVERED">
-        <div class="count">7</div>
+        <div class="count">14</div>
         <div class="name">COVERED</div>
       </div>
       
       
       <div class="v-tile v-UNTESTED">
-        <div class="count">3</div>
+        <div class="count">0</div>
         <div class="name">UNTESTED</div>
       </div>
       
       
       <div class="v-tile v-DRIFT">
-        <div class="count">2</div>
+        <div class="count">0</div>
         <div class="name">DRIFT</div>
       </div>
       
       
       <div class="v-tile v-VIOLATION">
-        <div class="count">1</div>
+        <div class="count">0</div>
         <div class="name">VIOLATION</div>
       </div>
       
       
       <div class="v-tile v-MISSING">
-        <div class="count">1</div>
+        <div class="count">0</div>
         <div class="name">MISSING</div>
       </div>
       
@@ -252,13 +254,23 @@ tr.hidden { display: none; }
       <!-- Critical gaps -->
       
       <div class="v-tile critical-gap" title="Critical-priority gaps">
-        <div class="count">3</div>
+        <div class="count">0</div>
         <div class="name">Critical gaps</div>
       </div>
     </div>
   </div>
 
   <!-- ── Before → After strip ── -->
+  
+  <div class="history-strip">
+    <span class="hs-label">Coverage history</span>
+    <span class="hs-val" style="color: var(--c-missing);">50.0%</span>
+    <span class="hs-arrow">→</span>
+    <span class="hs-val" style="color: var(--c-covered);">100.0%</span>
+    <span style="font-size:12px; color: var(--muted);">
+      (+50.0 pp since first record)
+    </span>
+  </div>
   
 
   <!-- ── Filter / search controls ── -->
@@ -267,27 +279,19 @@ tr.hidden { display: none; }
     
     
     
-    <button class="filter-btn" data-filter="COVERED">COVERED (7)</button>
+    <button class="filter-btn" data-filter="COVERED">COVERED (14)</button>
     
     
     
     
-    <button class="filter-btn" data-filter="UNTESTED">UNTESTED (3)</button>
     
     
     
     
-    <button class="filter-btn" data-filter="DRIFT">DRIFT (2)</button>
     
     
     
     
-    <button class="filter-btn" data-filter="VIOLATION">VIOLATION (1)</button>
-    
-    
-    
-    
-    <button class="filter-btn" data-filter="MISSING">MISSING (1)</button>
     
     
     
@@ -361,7 +365,7 @@ tr.hidden { display: none; }
         <td class="td-rats">SUPPORTED_CURRENCIES = {&#34;INR&#34;,&#34;USD&#34;,&#34;EUR&#34;} and UNSUPPORTED_CURRENCY error code match the spec exactly; two tests assert both rejection and acceptance.</td>
       </tr>
       
-      <tr class="row-DRIFT" data-verdict="DRIFT"
+      <tr class="row-COVERED" data-verdict="COVERED"
           data-id="PF-002"
           data-prio="Critical"
           data-area="Limits"
@@ -379,14 +383,14 @@ tr.hidden { display: none; }
           <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
           
         </td>
-        <td><span class="chip chip-DRIFT">DRIFT</span></td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
         <td class="td-refs">
           
           <ul class="ref-list">
           
-            <li title="payflow/validation.py:11 ">payflow/validation.py:11</li>
+            <li title="payflow/validation.py:12 ">payflow/validation.py:12</li>
           
-            <li title="payflow/validation.py:35 ">payflow/validation.py:35</li>
+            <li title="payflow/validation.py:32 ">payflow/validation.py:32</li>
           
           </ul>
           
@@ -396,13 +400,17 @@ tr.hidden { display: none; }
           <ul class="ref-list">
           
             
-            <li class="test-pass" title="tests/test_payments.py::test_large_payment_within_limit">✓ tests/test_payments.py::test_large_paym…</li>
+            <li class="test-pass" title="tests/test_payments.py::test_pf002_rejects_amount_above_limit">✓ tests/test_payments.py::test_pf002_reje…</li>
+            
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf002_accepts_amount_at_limit">✓ tests/test_payments.py::test_pf002_acce…</li>
             
           
           </ul>
           
         </td>
-        <td class="td-rats">MAX_TXN_AMOUNT_INR is 200000.00 but spec requires INR 1,00,000.00 (=100000); test_large_payment_within_limit asserts 150000 INR is accepted, which contradicts the spec limit.</td>
+        <td class="td-rats">MAX_TXN_AMOUNT_INR corrected from 200000 to 100000 (1,00,000 INR). test_pf002_rejects_amount_above_limit asserts 150 000 INR raises AMOUNT_LIMIT_EXCEEDED; test_pf002_accepts_amount_at_limit asserts exactly 1,00,000 INR is accepted. Old test_large_payment_within_limit replaced.</td>
       </tr>
       
       <tr class="row-COVERED" data-verdict="COVERED"
@@ -453,7 +461,7 @@ tr.hidden { display: none; }
         <td class="td-rats">IDEMPOTENCY_TTL=24h matches spec; dedup logic returns original payment within TTL; test asserts same id and no duplicate charge.</td>
       </tr>
       
-      <tr class="row-UNTESTED" data-verdict="UNTESTED"
+      <tr class="row-COVERED" data-verdict="COVERED"
           data-id="PF-004"
           data-prio="High"
           data-area="Integrity"
@@ -469,7 +477,7 @@ tr.hidden { display: none; }
           Monetary amounts SHALL be stored as integer minor units (paise/cents). Floating-point amounts SHALL be rejected.
           
         </td>
-        <td><span class="chip chip-UNTESTED">UNTESTED</span></td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
         <td class="td-refs">
           
           <ul class="ref-list">
@@ -478,20 +486,24 @@ tr.hidden { display: none; }
           
             <li title="payflow/validation.py:27 ">payflow/validation.py:27</li>
           
-            <li title="payflow/models.py:38 ">payflow/models.py:38</li>
-          
           </ul>
           
         </td>
         <td class="td-refs">
           
-          <span class="no-data">—</span>
+          <ul class="ref-list">
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf004_rejects_float_amount">✓ tests/test_payments.py::test_pf004_reje…</li>
+            
+          
+          </ul>
           
         </td>
-        <td class="td-rats">to_minor_units rejects float inputs and amount_minor is typed int, but no test asserts that a float argument raises INVALID_AMOUNT.</td>
+        <td class="td-rats">to_minor_units raises PaymentError(&#39;INVALID_AMOUNT&#39;) when isinstance(amount, float). test_pf004_rejects_float_amount calls to_minor_units(1234.56) and asserts INVALID_AMOUNT is raised.</td>
       </tr>
       
-      <tr class="row-DRIFT" data-verdict="DRIFT"
+      <tr class="row-COVERED" data-verdict="COVERED"
           data-id="PF-005"
           data-prio="High"
           data-area="Refunds"
@@ -507,7 +519,7 @@ tr.hidden { display: none; }
           A refund SHALL only be permitted within 30 days of capture. Later requests SHALL be rejected with REFUND_WINDOW_EXPIRED.
           
         </td>
-        <td><span class="chip chip-DRIFT">DRIFT</span></td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
         <td class="td-refs">
           
           <ul class="ref-list">
@@ -521,10 +533,24 @@ tr.hidden { display: none; }
         </td>
         <td class="td-refs">
           
-          <span class="no-data">—</span>
+          <ul class="ref-list">
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf005_refund_within_30_days_allowed">✓ tests/test_payments.py::test_pf005_refu…</li>
+            
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf005_refund_after_30_days_rejected">✓ tests/test_payments.py::test_pf005_refu…</li>
+            
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf005_refund_rejected_at_old_60day_boundary">✓ tests/test_payments.py::test_pf005_refu…</li>
+            
+          
+          </ul>
           
         </td>
-        <td class="td-rats">REFUND_WINDOW is timedelta(days=60) but spec requires 30 days; no test covers this boundary at all.</td>
+        <td class="td-rats">REFUND_WINDOW corrected from timedelta(days=60) to timedelta(days=30). Tests assert immediate refund succeeds, refund after 31 days raises REFUND_WINDOW_EXPIRED, and refund after 45 days (previously allowed by old 60-day window) also raises REFUND_WINDOW_EXPIRED.</td>
       </tr>
       
       <tr class="row-COVERED" data-verdict="COVERED"
@@ -619,7 +645,7 @@ tr.hidden { display: none; }
         <td class="td-rats">AuditRecord captures payment_id, actor, old_state, new_state, timestamp for every transition; test asserts the full sequence including actor name.</td>
       </tr>
       
-      <tr class="row-VIOLATION" data-verdict="VIOLATION"
+      <tr class="row-COVERED" data-verdict="COVERED"
           data-id="PF-008"
           data-prio="Critical"
           data-area="Security / PCI-DSS"
@@ -637,7 +663,7 @@ tr.hidden { display: none; }
           <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
           
         </td>
-        <td><span class="chip chip-VIOLATION">VIOLATION</span></td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
         <td class="td-refs">
           
           <ul class="ref-list">
@@ -651,13 +677,19 @@ tr.hidden { display: none; }
         </td>
         <td class="td-refs">
           
-          <span class="no-data">—</span>
+          <ul class="ref-list">
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf008_full_pan_not_logged">✓ tests/test_payments.py::test_pf008_full…</li>
+            
+          
+          </ul>
           
         </td>
-        <td class="td-rats">log.info logs the raw card_number variable (full PAN) in create_payment; spec PF-008/PCI-DSS Req 3.4 prohibits logging full PANs — only last four digits may appear.</td>
+        <td class="td-rats">log.info in create_payment now uses card_number[-4:] (masked as ****XXXX) instead of the full PAN. test_pf008_full_pan_not_logged captures the payflow logger at INFO level and asserts the full 16-digit CARD string is absent and the last-4 digits are present.</td>
       </tr>
       
-      <tr class="row-UNTESTED" data-verdict="UNTESTED"
+      <tr class="row-COVERED" data-verdict="COVERED"
           data-id="PF-009"
           data-prio="Medium"
           data-area="Resilience"
@@ -675,7 +707,7 @@ tr.hidden { display: none; }
           <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
           
         </td>
-        <td><span class="chip chip-UNTESTED">UNTESTED</span></td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
         <td class="td-refs">
           
           <ul class="ref-list">
@@ -686,17 +718,33 @@ tr.hidden { display: none; }
           
             <li title="payflow/gateway.py:35 ">payflow/gateway.py:35</li>
           
-            <li title="payflow/gateway.py:37 ">payflow/gateway.py:37</li>
-          
           </ul>
           
         </td>
         <td class="td-refs">
           
-          <span class="no-data">—</span>
+          <ul class="ref-list">
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf009_retries_3_times_on_5xx">✓ tests/test_payments.py::test_pf009_retr…</li>
+            
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf009_exponential_backoff_sequence">✓ tests/test_payments.py::test_pf009_expo…</li>
+            
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf009_4xx_not_retried">✓ tests/test_payments.py::test_pf009_4xx_…</li>
+            
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf009_timeout_triggers_retry">✓ tests/test_payments.py::test_pf009_time…</li>
+            
+          
+          </ul>
           
         </td>
-        <td class="td-rats">BACKOFF_SECONDS=(1,2,4) and 4xx no-retry logic are implemented correctly, but no test asserts retry count, backoff timing, or 4xx pass-through.</td>
+        <td class="td-rats">BACKOFF_SECONDS=(1,2,4) implements 3-retry exponential backoff; 4xx GatewayError is re-raised immediately (status &lt; 500 check). Four tests: retries exactly 3 times on 5xx; backoff sequence is [1,2,4]; 4xx raises immediately with 1 call; timeout triggers retry.</td>
       </tr>
       
       <tr class="row-COVERED" data-verdict="COVERED"
@@ -745,7 +793,7 @@ tr.hidden { display: none; }
         <td class="td-rats">MAX_REQUESTS_PER_MINUTE=20 and RATE_LIMITED error match spec; test exhausts 20 requests for m1 and asserts rejection, then passes m2 (per-merchant isolation).</td>
       </tr>
       
-      <tr class="row-MISSING" data-verdict="MISSING"
+      <tr class="row-COVERED" data-verdict="COVERED"
           data-id="PF-011"
           data-prio="Critical"
           data-area="Risk"
@@ -763,18 +811,40 @@ tr.hidden { display: none; }
           <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
           
         </td>
-        <td><span class="chip chip-MISSING">MISSING</span></td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
         <td class="td-refs">
           
-          <span class="no-data">—</span>
+          <ul class="ref-list">
+          
+            <li title="payflow/service.py:22 ">payflow/service.py:22</li>
+          
+            <li title="payflow/service.py:68 ">payflow/service.py:68</li>
+          
+            <li title="payflow/service.py:74 ">payflow/service.py:74</li>
+          
+          </ul>
           
         </td>
         <td class="td-refs">
           
-          <span class="no-data">—</span>
+          <ul class="ref-list">
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf011_above_50k_requires_step_up">✓ tests/test_payments.py::test_pf011_abov…</li>
+            
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf011_above_50k_with_step_up_succeeds">✓ tests/test_payments.py::test_pf011_abov…</li>
+            
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf011_below_50k_no_step_up_needed">✓ tests/test_payments.py::test_pf011_belo…</li>
+            
+          
+          </ul>
           
         </td>
-        <td class="td-rats">No code anywhere checks for INR-equivalent &gt; 50000 to flag step-up/2FA before authorization; the requirement has no implementation.</td>
+        <td class="td-rats">STEP_UP_THRESHOLD_INR=50000 added; authorize() now accepts step_up_verified param and raises STEP_UP_REQUIRED when amount_inr &gt; 50000 and step_up_verified is False. Three tests: above-threshold without flag raises STEP_UP_REQUIRED; with flag succeeds; at/below threshold needs no flag.</td>
       </tr>
       
       <tr class="row-COVERED" data-verdict="COVERED"
@@ -827,7 +897,7 @@ tr.hidden { display: none; }
         <td class="td-rats">ALLOWED_TRANSITIONS enforces the exact state machine from the spec; INVALID_TRANSITION error matches; tests cover both happy path and illegal transition.</td>
       </tr>
       
-      <tr class="row-UNTESTED" data-verdict="UNTESTED"
+      <tr class="row-COVERED" data-verdict="COVERED"
           data-id="PF-013"
           data-prio="Medium"
           data-area="FX"
@@ -845,7 +915,7 @@ tr.hidden { display: none; }
           <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
           
         </td>
-        <td><span class="chip chip-UNTESTED">UNTESTED</span></td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
         <td class="td-refs">
           
           <ul class="ref-list">
@@ -861,10 +931,24 @@ tr.hidden { display: none; }
         </td>
         <td class="td-refs">
           
-          <span class="no-data">—</span>
+          <ul class="ref-list">
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf013_stale_rate_rejected">✓ tests/test_payments.py::test_pf013_stal…</li>
+            
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf013_fresh_rate_accepted">✓ tests/test_payments.py::test_pf013_fres…</li>
+            
+          
+            
+            <li class="test-pass" title="tests/test_payments.py::test_pf013_rate_exactly_15min_accepted">✓ tests/test_payments.py::test_pf013_rate…</li>
+            
+          
+          </ul>
           
         </td>
-        <td class="td-rats">MAX_RATE_AGE=15 minutes and STALE_RATE error are implemented correctly, but no test sets an old rate timestamp and asserts rejection.</td>
+        <td class="td-rats">MAX_RATE_AGE=timedelta(minutes=15) and STALE_RATE error already implemented in fx.py. Three tests: stale rate (16 min) raises STALE_RATE; fresh rate (5 min) converts correctly; rate exactly at 15-min boundary is accepted (exclusive boundary).</td>
       </tr>
       
       <tr class="row-COVERED" data-verdict="COVERED"

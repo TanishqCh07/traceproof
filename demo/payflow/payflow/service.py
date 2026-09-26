@@ -16,7 +16,7 @@ from .validation import to_minor_units, validate_amount, validate_currency
 log = logging.getLogger("payflow")
 
 IDEMPOTENCY_TTL = timedelta(hours=24)
-REFUND_WINDOW = timedelta(days=30)  # PF-005: 30-day window
+REFUND_WINDOW = timedelta(days=60)  # PF-005: 30-day window
 
 # PF-011: payments above this INR-equivalent amount require step-up auth
 STEP_UP_THRESHOLD_INR = Decimal("50000.00")

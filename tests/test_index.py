@@ -10,13 +10,13 @@ from traceproof.index import RepoIndex, SymbolEntry, TestEntry, index_repo
 
 # Path to the demo payflow repo (relative to workspace root).
 DEMO_REPO = Path("demo/payflow")
-EXPECTED_TEST_COUNT = 11
+EXPECTED_TEST_COUNT = 27
 
 
 class TestDemoRepo:
     """Integration tests against the real demo/payflow codebase."""
 
-    def test_finds_all_11_tests(self):
+    def test_finds_all_demo_tests(self):
         idx = index_repo(DEMO_REPO)
         assert len(idx.tests) == EXPECTED_TEST_COUNT, (
             f"Expected {EXPECTED_TEST_COUNT} tests, found {len(idx.tests)}: "

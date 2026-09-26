@@ -1,9 +1,9 @@
 {
   "mcpServers": {
     "traceproof": {
-      "command": "python",
+      "command": "C:\\Projects\\traceproof\\traceproof\\.venv\\Scripts\\python.exe",
       "args": ["-m", "traceproof.mcp_server"],
-      "cwd": "${workspaceFolder}",
+      "cwd": "C:\\Projects\\traceproof\\traceproof",
       "timeout": 120,
       "alwaysAllow": ["extract_requirements", "index_repo", "get_matrix", "get_gaps"]
     }

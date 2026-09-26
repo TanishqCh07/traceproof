@@ -18,7 +18,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install -e .
+        run: pip install -e . pytest
 
       # ── Step 1: root test suite ────────────────────────────────────────────
       - name: Run root test suite

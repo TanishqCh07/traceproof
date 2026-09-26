@@ -1,0 +1,502 @@
+{
+  "symbols": [
+    {
+      "name": "AuditRecord",
+      "kind": "class",
+      "path": "payflow/audit.py",
+      "line": 10,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "AuditLog",
+      "kind": "class",
+      "path": "payflow/audit.py",
+      "line": 18,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "__init__",
+      "kind": "method",
+      "path": "payflow/audit.py",
+      "line": 19,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "record",
+      "kind": "method",
+      "path": "payflow/audit.py",
+      "line": 22,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "for_payment",
+      "kind": "method",
+      "path": "payflow/audit.py",
+      "line": 27,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "MAX_RATE_AGE",
+      "kind": "constant",
+      "path": "payflow/fx.py",
+      "line": 10,
+      "docstring": "",
+      "value": "timedelta(minutes=15)",
+      "req_ids": []
+    },
+    {
+      "name": "Rate",
+      "kind": "class",
+      "path": "payflow/fx.py",
+      "line": 14,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "RateBook",
+      "kind": "class",
+      "path": "payflow/fx.py",
+      "line": 20,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "__init__",
+      "kind": "method",
+      "path": "payflow/fx.py",
+      "line": 21,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "set_rate",
+      "kind": "method",
+      "path": "payflow/fx.py",
+      "line": 26,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "to_inr",
+      "kind": "method",
+      "path": "payflow/fx.py",
+      "line": 29,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "GatewayError",
+      "kind": "class",
+      "path": "payflow/gateway.py",
+      "line": 8,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "GatewayTimeout",
+      "kind": "class",
+      "path": "payflow/gateway.py",
+      "line": 14,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "BACKOFF_SECONDS",
+      "kind": "constant",
+      "path": "payflow/gateway.py",
+      "line": 18,
+      "docstring": "",
+      "value": "(1, 2, 4)",
+      "req_ids": []
+    },
+    {
+      "name": "call_with_retry",
+      "kind": "function",
+      "path": "payflow/gateway.py",
+      "line": 21,
+      "docstring": "Call the gateway, retrying transient failures with exponential backoff.\n\n    Retries only on 5xx responses and timeouts; 4xx errors are raised immediately.",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "__init__",
+      "kind": "method",
+      "path": "payflow/gateway.py",
+      "line": 9,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "PaymentStatus",
+      "kind": "class",
+      "path": "payflow/models.py",
+      "line": 9,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "utc_now",
+      "kind": "function",
+      "path": "payflow/models.py",
+      "line": 29,
+      "docstring": "Return the current time as a UTC ISO-8601 string.",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "Payment",
+      "kind": "class",
+      "path": "payflow/models.py",
+      "line": 35,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "PaymentError",
+      "kind": "class",
+      "path": "payflow/models.py",
+      "line": 47,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "__init__",
+      "kind": "method",
+      "path": "payflow/models.py",
+      "line": 48,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "MAX_REQUESTS_PER_MINUTE",
+      "kind": "constant",
+      "path": "payflow/ratelimit.py",
+      "line": 9,
+      "docstring": "",
+      "value": "20",
+      "req_ids": []
+    },
+    {
+      "name": "RateLimiter",
+      "kind": "class",
+      "path": "payflow/ratelimit.py",
+      "line": 12,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "__init__",
+      "kind": "method",
+      "path": "payflow/ratelimit.py",
+      "line": 13,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "check",
+      "kind": "method",
+      "path": "payflow/ratelimit.py",
+      "line": 19,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "log",
+      "kind": "constant",
+      "path": "payflow/service.py",
+      "line": 16,
+      "docstring": "",
+      "value": "logging.getLogger('payflow')",
+      "req_ids": []
+    },
+    {
+      "name": "IDEMPOTENCY_TTL",
+      "kind": "constant",
+      "path": "payflow/service.py",
+      "line": 18,
+      "docstring": "",
+      "value": "timedelta(hours=24)",
+      "req_ids": []
+    },
+    {
+      "name": "REFUND_WINDOW",
+      "kind": "constant",
+      "path": "payflow/service.py",
+      "line": 19,
+      "docstring": "",
+      "value": "timedelta(days=60)",
+      "req_ids": []
+    },
+    {
+      "name": "PaymentService",
+      "kind": "class",
+      "path": "payflow/service.py",
+      "line": 22,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "__init__",
+      "kind": "method",
+      "path": "payflow/service.py",
+      "line": 23,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "create_payment",
+      "kind": "method",
+      "path": "payflow/service.py",
+      "line": 33,
+      "docstring": "",
+      "value": "",
+      "req_ids": [
+        "PF-003"
+      ]
+    },
+    {
+      "name": "_transition",
+      "kind": "method",
+      "path": "payflow/service.py",
+      "line": 61,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "authorize",
+      "kind": "method",
+      "path": "payflow/service.py",
+      "line": 68,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "capture",
+      "kind": "method",
+      "path": "payflow/service.py",
+      "line": 74,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "refund",
+      "kind": "method",
+      "path": "payflow/service.py",
+      "line": 80,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "SUPPORTED_CURRENCIES",
+      "kind": "constant",
+      "path": "payflow/validation.py",
+      "line": 8,
+      "docstring": "",
+      "value": "{'INR', 'USD', 'EUR'}",
+      "req_ids": []
+    },
+    {
+      "name": "MAX_TXN_AMOUNT_INR",
+      "kind": "constant",
+      "path": "payflow/validation.py",
+      "line": 11,
+      "docstring": "",
+      "value": "Decimal('200000.00')",
+      "req_ids": []
+    },
+    {
+      "name": "validate_currency",
+      "kind": "function",
+      "path": "payflow/validation.py",
+      "line": 14,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "to_minor_units",
+      "kind": "function",
+      "path": "payflow/validation.py",
+      "line": 21,
+      "docstring": "Convert a decimal major-unit amount to integer minor units.\n\n    Floats are rejected so we never introduce binary rounding errors.",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "validate_amount",
+      "kind": "function",
+      "path": "payflow/validation.py",
+      "line": 32,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    },
+    {
+      "name": "CARD",
+      "kind": "constant",
+      "path": "tests/test_payments.py",
+      "line": 9,
+      "docstring": "",
+      "value": "'4111111111111111'",
+      "req_ids": []
+    },
+    {
+      "name": "svc",
+      "kind": "function",
+      "path": "tests/test_payments.py",
+      "line": 13,
+      "docstring": "",
+      "value": "",
+      "req_ids": []
+    }
+  ],
+  "tests": [
+    {
+      "name": "test_rejects_unsupported_currency",
+      "path": "tests/test_payments.py",
+      "line": 17,
+      "node": "tests/test_payments.py::test_rejects_unsupported_currency",
+      "asserted_literals": [
+        "UNSUPPORTED_CURRENCY"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_accepts_supported_currency",
+      "path": "tests/test_payments.py",
+      "line": 23,
+      "node": "tests/test_payments.py::test_accepts_supported_currency",
+      "asserted_literals": [
+        "INR"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_rejects_non_positive_amount",
+      "path": "tests/test_payments.py",
+      "line": 28,
+      "node": "tests/test_payments.py::test_rejects_non_positive_amount",
+      "asserted_literals": [
+        "INVALID_AMOUNT"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_large_payment_within_limit",
+      "path": "tests/test_payments.py",
+      "line": 34,
+      "node": "tests/test_payments.py::test_large_payment_within_limit",
+      "asserted_literals": [
+        "15000000"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_idempotent_create_returns_same_payment",
+      "path": "tests/test_payments.py",
+      "line": 39,
+      "node": "tests/test_payments.py::test_idempotent_create_returns_same_payment",
+      "asserted_literals": [
+        "1"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_refund_cannot_exceed_capture",
+      "path": "tests/test_payments.py",
+      "line": 46,
+      "node": "tests/test_payments.py::test_refund_cannot_exceed_capture",
+      "asserted_literals": [
+        "REFUND_EXCEEDS_CAPTURE"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_state_changes_are_audited",
+      "path": "tests/test_payments.py",
+      "line": 56,
+      "node": "tests/test_payments.py::test_state_changes_are_audited",
+      "asserted_literals": [
+        "CREATED",
+        "CREATED",
+        "AUTHORIZED",
+        "AUTHORIZED",
+        "CAPTURED",
+        "bob",
+        "1"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_invalid_transition_rejected",
+      "path": "tests/test_payments.py",
+      "line": 66,
+      "node": "tests/test_payments.py::test_invalid_transition_rejected",
+      "asserted_literals": [
+        "INVALID_TRANSITION"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_rate_limit_per_merchant",
+      "path": "tests/test_payments.py",
+      "line": 73,
+      "node": "tests/test_payments.py::test_rate_limit_per_merchant",
+      "asserted_literals": [
+        "RATE_LIMITED"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_timestamps_are_utc_iso8601",
+      "path": "tests/test_payments.py",
+      "line": 84,
+      "node": "tests/test_payments.py::test_timestamps_are_utc_iso8601",
+      "asserted_literals": [
+        "0",
+        "+00:00",
+        "0"
+      ],
+      "req_ids": []
+    },
+    {
+      "name": "test_happy_path_lifecycle",
+      "path": "tests/test_payments.py",
+      "line": 91,
+      "node": "tests/test_payments.py::test_happy_path_lifecycle",
+      "asserted_literals": [],
+      "req_ids": []
+    }
+  ]
+}

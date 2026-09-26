@@ -1,0 +1,79 @@
+[
+  {
+    "req_id": "",
+    "path": "",
+    "line": 0,
+    "node": "tests/test_payments.py::test_rejects_unsupported_currency",
+    "passed": true
+  },
+  {
+    "req_id": "",
+    "path": "",
+    "line": 0,
+    "node": "tests/test_payments.py::test_accepts_supported_currency",
+    "passed": true
+  },
+  {
+    "req_id": "",
+    "path": "",
+    "line": 0,
+    "node": "tests/test_payments.py::test_rejects_non_positive_amount",
+    "passed": true
+  },
+  {
+    "req_id": "",
+    "path": "",
+    "line": 0,
+    "node": "tests/test_payments.py::test_large_payment_within_limit",
+    "passed": true
+  },
+  {
+    "req_id": "",
+    "path": "",
+    "line": 0,
+    "node": "tests/test_payments.py::test_idempotent_create_returns_same_payment",
+    "passed": true
+  },
+  {
+    "req_id": "",
+    "path": "",
+    "line": 0,
+    "node": "tests/test_payments.py::test_refund_cannot_exceed_capture",
+    "passed": true
+  },
+  {
+    "req_id": "",
+    "path": "",
+    "line": 0,
+    "node": "tests/test_payments.py::test_state_changes_are_audited",
+    "passed": true
+  },
+  {
+    "req_id": "",
+    "path": "",
+    "line": 0,
+    "node": "tests/test_payments.py::test_invalid_transition_rejected",
+    "passed": true
+  },
+  {
+    "req_id": "",
+    "path": "",
+    "line": 0,
+    "node": "tests/test_payments.py::test_rate_limit_per_merchant",
+    "passed": true
+  },
+  {
+    "req_id": "",
+    "path": "",
+    "line": 0,
+    "node": "tests/test_payments.py::test_timestamps_are_utc_iso8601",
+    "passed": true
+  },
+  {
+    "req_id": "",
+    "path": "",
+    "line": 0,
+    "node": "tests/test_payments.py::test_happy_path_lifecycle",
+    "passed": true
+  }
+]

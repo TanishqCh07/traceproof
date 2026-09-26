@@ -1,0 +1,86 @@
+[
+  {
+    "req_id": "PF-001",
+    "text": "The service SHALL accept payments only in INR, USD and EUR. Requests in any other currency SHALL be rejected with error code UNSUPPORTED_CURRENCY.",
+    "area": "Currency",
+    "priority": "High"
+  },
+  {
+    "req_id": "PF-002",
+    "text": "The amount of a single transaction SHALL be greater than zero and SHALL NOT exceed INR 1,00,000.00 (INR-equivalent). Requests above the limit SHALL be rejected with AMOUNT_LIMIT_EXCEEDED.",
+    "area": "Limits",
+    "priority": "Critical"
+  },
+  {
+    "req_id": "PF-003",
+    "text": "Payment creation SHALL be idempotent: a repeated request with the same idempotency key within 24 hours SHALL return the original payment and SHALL NOT create a new charge.",
+    "area": "Integrity",
+    "priority": "Critical"
+  },
+  {
+    "req_id": "PF-004",
+    "text": "Monetary amounts SHALL be stored as integer minor units (paise/cents). Floating-point amounts SHALL be rejected.",
+    "area": "Integrity",
+    "priority": "High"
+  },
+  {
+    "req_id": "PF-005",
+    "text": "A refund SHALL only be permitted within 30 days of capture. Later requests SHALL be rejected with REFUND_WINDOW_EXPIRED.",
+    "area": "Refunds",
+    "priority": "High"
+  },
+  {
+    "req_id": "PF-006",
+    "text": "The cumulative refunded amount SHALL NOT exceed the captured amount. Violations SHALL be rejected with REFUND_EXCEEDS_CAPTURE.",
+    "area": "Refunds",
+    "priority": "Critical"
+  },
+  {
+    "req_id": "PF-007",
+    "text": "Every payment state change SHALL write an audit record containing payment id, actor, previous state, new state and timestamp.",
+    "area": "Audit",
+    "priority": "Critical"
+  },
+  {
+    "req_id": "PF-008",
+    "text": "Full card numbers (PAN) SHALL NEVER be written to application logs. Where a card must be referenced, only the last four digits MAY be shown (PCI-DSS Req. 3.4).",
+    "area": "Security / PCI-DSS",
+    "priority": "Critical"
+  },
+  {
+    "req_id": "PF-009",
+    "text": "Calls to the card gateway SHALL be retried at most 3 times with exponential backoff (1s, 2s, 4s) on HTTP 5xx or timeout. HTTP 4xx responses SHALL NOT be retried.",
+    "area": "Resilience",
+    "priority": "Medium"
+  },
+  {
+    "req_id": "PF-010",
+    "text": "Each merchant SHALL be limited to 20 payment-creation requests per rolling minute. Excess requests SHALL be rejected with RATE_LIMITED.",
+    "area": "Abuse prevention",
+    "priority": "High"
+  },
+  {
+    "req_id": "PF-011",
+    "text": "Payments with an INR-equivalent amount above INR 50,000.00 SHALL be flagged as requiring step-up authentication (2FA) before authorization.",
+    "area": "Risk",
+    "priority": "Critical"
+  },
+  {
+    "req_id": "PF-012",
+    "text": "Payment status SHALL follow CREATED -> AUTHORIZED -> CAPTURED -> PARTIALLY_REFUNDED/REFUNDED (or FAILED). Any other transition SHALL be rejected with INVALID_TRANSITION.",
+    "area": "Lifecycle",
+    "priority": "High"
+  },
+  {
+    "req_id": "PF-013",
+    "text": "Currency conversion SHALL use exchange rates no older than 15 minutes; otherwise the request SHALL be rejected with STALE_RATE.",
+    "area": "FX",
+    "priority": "Medium"
+  },
+  {
+    "req_id": "PF-014",
+    "text": "All timestamps SHALL be stored in UTC using ISO-8601 format.",
+    "area": "Data",
+    "priority": "Medium"
+  }
+]

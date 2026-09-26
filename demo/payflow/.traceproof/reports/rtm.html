@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TraceProof — Requirements Traceability Matrix</title>
+<style>
+/* ── Reset / base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #ffffff;
+  --surface:   #f7f8fa;
+  --border:    #e5e7eb;
+  --text:      #1f2328;
+  --muted:     #57606a;
+  --accent:    #3b82d4;
+  --c-covered:   #16a34a;
+  --c-untested:  #d97706;
+  --c-drift:     #ea580c;
+  --c-violation: #dc2626;
+  --c-missing:   #991b1b;
+  --c-pending:   #6b7280;
+  --bg-violation:#fff5f5;
+  --bg-drift:    #fff7ed;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --border:   #30363d;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --bg-violation:#2d1b1b;
+    --bg-drift:    #2d1f0e;
+  }
+}
+body {
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  background: var(--bg);
+  color: var(--text);
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Layout ── */
+.page { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
+
+/* ── Header ── */
+.header { border-bottom: 2px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; }
+.header h1 { font-size: 22px; font-weight: 700; color: var(--text); }
+.header-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.header-meta span { display: flex; align-items: center; gap: 4px; }
+.header-meta .label { font-weight: 600; color: var(--text); }
+
+/* ── KPI row ── */
+.kpi-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 24px; }
+
+/* Coverage ring */
+.ring-wrap { position: relative; width: 96px; height: 96px; flex-shrink: 0; }
+.ring-wrap svg { transform: rotate(-90deg); }
+.ring-bg  { fill: none; stroke: var(--border); stroke-width: 10; }
+.ring-arc { fill: none; stroke: var(--c-covered); stroke-width: 10;
+            stroke-linecap: round; transition: stroke-dasharray .6s ease; }
+.ring-label { position: absolute; inset: 0; display: flex; flex-direction: column;
+               align-items: center; justify-content: center; }
+.ring-pct { font-size: 20px; font-weight: 700; }
+.ring-sub { font-size: 10px; color: var(--muted); }
+
+/* Verdict tiles */
+.verdict-tiles { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+.v-tile { border-radius: 8px; padding: 10px 16px; min-width: 88px; text-align: center;
+           border: 1px solid var(--border); background: var(--surface); }
+.v-tile .count { font-size: 22px; font-weight: 700; }
+.v-tile .name  { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.v-tile.critical-gap .count { color: var(--c-violation); }
+.v-tile.v-COVERED   .count { color: var(--c-covered);   }
+.v-tile.v-UNTESTED  .count { color: var(--c-untested);  }
+.v-tile.v-DRIFT     .count { color: var(--c-drift);     }
+.v-tile.v-VIOLATION .count { color: var(--c-violation); }
+.v-tile.v-MISSING   .count { color: var(--c-missing);   }
+.v-tile.v-PENDING   .count { color: var(--c-pending);   }
+
+/* ── Before → After strip ── */
+.history-strip { background: var(--surface); border: 1px solid var(--border);
+                  border-radius: 8px; padding: 12px 16px; margin-bottom: 24px;
+                  display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.history-strip .hs-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.history-strip .hs-val   { font-size: 18px; font-weight: 700; }
+.history-strip .hs-arrow { font-size: 20px; color: var(--muted); }
+
+/* ── Controls ── */
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+.filter-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);
+               background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px;
+               font-family: inherit; transition: background .15s, border-color .15s; }
+.filter-btn:hover { border-color: var(--accent); }
+.filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.search-box { margin-left: auto; padding: 5px 12px; border: 1px solid var(--border);
+               border-radius: 6px; background: var(--surface); color: var(--text);
+               font-family: inherit; font-size: 12px; width: 220px; outline: none; }
+.search-box:focus { border-color: var(--accent); }
+
+/* ── Matrix table ── */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; }
+thead th { background: var(--surface); font-size: 11px; text-transform: uppercase;
+            letter-spacing: .05em; color: var(--muted); padding: 10px 12px;
+            text-align: left; border-bottom: 1px solid var(--border); cursor: pointer;
+            user-select: none; white-space: nowrap; }
+thead th:hover { color: var(--text); }
+thead th .sort-icon { margin-left: 4px; opacity: .4; }
+thead th.sorted .sort-icon { opacity: 1; }
+tbody tr { border-bottom: 1px solid var(--border); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr.row-VIOLATION { background: var(--bg-violation); }
+tbody tr.row-DRIFT     { background: var(--bg-drift);     }
+tbody tr:hover { filter: brightness(0.97); }
+td { padding: 10px 12px; vertical-align: top; font-size: 13px; }
+td.td-id   { white-space: nowrap; font-weight: 600; font-size: 12px; }
+td.td-prio { white-space: nowrap; }
+td.td-area { white-space: nowrap; font-size: 12px; color: var(--muted); }
+td.td-text { max-width: 340px; }
+td.td-refs { font-size: 12px; max-width: 200px; }
+td.td-rats { font-size: 12px; color: var(--muted); max-width: 220px; }
+
+/* Expandable requirement text */
+.req-short { }
+.req-full  { display: none; }
+.req-toggle { font-size: 11px; color: var(--accent); cursor: pointer; }
+
+/* Verdict chip */
+.chip { display: inline-block; padding: 2px 8px; border-radius: 12px;
+         font-size: 11px; font-weight: 600; letter-spacing: .04em; }
+.chip-COVERED   { background: #dcfce7; color: #15803d; }
+.chip-UNTESTED  { background: #fef3c7; color: #92400e; }
+.chip-DRIFT     { background: #ffedd5; color: #9a3412; }
+.chip-VIOLATION { background: #fee2e2; color: #991b1b; }
+.chip-MISSING   { background: #fce8e8; color: #7f1d1d; }
+.chip-PENDING   { background: #f3f4f6; color: #374151; }
+@media (prefers-color-scheme: dark) {
+  .chip-COVERED   { background: #14532d; color: #86efac; }
+  .chip-UNTESTED  { background: #451a03; color: #fde68a; }
+  .chip-DRIFT     { background: #431407; color: #fdba74; }
+  .chip-VIOLATION { background: #450a0a; color: #fca5a5; }
+  .chip-MISSING   { background: #3b0d0d; color: #f87171; }
+  .chip-PENDING   { background: #1f2937; color: #9ca3af; }
+}
+
+/* Priority badge */
+.prio { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.prio-Critical { background: #fee2e2; color: #991b1b; }
+.prio-High     { background: #ffedd5; color: #9a3412; }
+.prio-Medium   { background: #fef3c7; color: #92400e; }
+.prio-Low      { background: #f0fdf4; color: #166534; }
+@media (prefers-color-scheme: dark) {
+  .prio-Critical { background: #450a0a; color: #fca5a5; }
+  .prio-High     { background: #431407; color: #fdba74; }
+  .prio-Medium   { background: #451a03; color: #fde68a; }
+  .prio-Low      { background: #052e16; color: #86efac; }
+}
+
+/* Code/test refs */
+.ref-list { list-style: none; }
+.ref-list li { padding: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.test-pass { color: var(--c-covered);   }
+.test-fail { color: var(--c-violation); }
+.test-unkn { color: var(--muted);       }
+.no-data   { color: var(--muted); font-style: italic; }
+
+/* Hidden row */
+tr.hidden { display: none; }
+
+/* Footer */
+.footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--border);
+           text-align: center; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <h1>TraceProof — Requirements Traceability Matrix</h1>
+    <div class="header-meta">
+      
+      <span><span class="label">Spec</span>PayFlow_SRS_v1.2.pdf</span>
+      
+      
+      <span><span class="label">Commit</span><code>bed041e</code></span>
+      
+      <span><span class="label">Generated</span>2026-09-26 12:42 UTC</span>
+      <span><span class="label">Requirements</span>14</span>
+      <span><span class="label">Coverage</span>50.0%</span>
+    </div>
+  </header>
+
+  <!-- ── KPI row ── -->
+  <div class="kpi-row">
+    <!-- Coverage ring -->
+    <div class="ring-wrap" title="50.0% covered">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle class="ring-bg"  cx="48" cy="48" r="38"/>
+        <circle class="ring-arc" cx="48" cy="48" r="38"
+          stroke-dasharray="119.38 119.38"
+          stroke-dashoffset="0"/>
+      </svg>
+      <div class="ring-label">
+        <span class="ring-pct">50%</span>
+        <span class="ring-sub">covered</span>
+      </div>
+    </div>
+
+    <!-- Verdict tiles -->
+    <div class="verdict-tiles">
+      
+      
+      <div class="v-tile v-COVERED">
+        <div class="count">7</div>
+        <div class="name">COVERED</div>
+      </div>
+      
+      
+      <div class="v-tile v-UNTESTED">
+        <div class="count">3</div>
+        <div class="name">UNTESTED</div>
+      </div>
+      
+      
+      <div class="v-tile v-DRIFT">
+        <div class="count">2</div>
+        <div class="name">DRIFT</div>
+      </div>
+      
+      
+      <div class="v-tile v-VIOLATION">
+        <div class="count">1</div>
+        <div class="name">VIOLATION</div>
+      </div>
+      
+      
+      <div class="v-tile v-MISSING">
+        <div class="count">1</div>
+        <div class="name">MISSING</div>
+      </div>
+      
+      
+      <div class="v-tile v-PENDING">
+        <div class="count">0</div>
+        <div class="name">PENDING</div>
+      </div>
+      
+      <!-- Critical gaps -->
+      
+      <div class="v-tile critical-gap" title="Critical-priority gaps">
+        <div class="count">3</div>
+        <div class="name">Critical gaps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Before → After strip ── -->
+  
+
+  <!-- ── Filter / search controls ── -->
+  <div class="controls">
+    <button class="filter-btn active" data-filter="ALL">All (14)</button>
+    
+    
+    
+    <button class="filter-btn" data-filter="COVERED">COVERED (7)</button>
+    
+    
+    
+    
+    <button class="filter-btn" data-filter="UNTESTED">UNTESTED (3)</button>
+    
+    
+    
+    
+    <button class="filter-btn" data-filter="DRIFT">DRIFT (2)</button>
+    
+    
+    
+    
+    <button class="filter-btn" data-filter="VIOLATION">VIOLATION (1)</button>
+    
+    
+    
+    
+    <button class="filter-btn" data-filter="MISSING">MISSING (1)</button>
+    
+    
+    
+    
+    
+    <input type="search" class="search-box" placeholder="Search ID, area, text…" id="searchBox">
+  </div>
+
+  <!-- ── Matrix table ── -->
+  <div class="table-wrap">
+    <table id="rtmTable">
+      <thead>
+        <tr>
+          <th data-col="id">ID <span class="sort-icon">↕</span></th>
+          <th data-col="prio">Priority <span class="sort-icon">↕</span></th>
+          <th data-col="area">Area <span class="sort-icon">↕</span></th>
+          <th data-col="text">Requirement</th>
+          <th data-col="verdict">Verdict <span class="sort-icon">↕</span></th>
+          <th>Code refs</th>
+          <th>Tests</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody id="rtmBody">
+      
+      <tr class="row-COVERED" data-verdict="COVERED"
+          data-id="PF-001"
+          data-prio="High"
+          data-area="Currency"
+          data-text="The service SHALL accept payments only in INR, USD and EUR. Requests in any other currency SHALL be rejected with error code UNSUPPORTED_CURRENCY.">
+        <td class="td-id">PF-001</td>
+        <td class="td-prio">
+          <span class="prio prio-High">High</span>
+        </td>
+        <td class="td-area">Currency</td>
+        <td class="td-text">
+          
+          
+          <span class="req-short">The service SHALL accept payments only in INR, USD and EUR. Requests in any other currency SHALL be rejected with error…</span>
+          <span class="req-full">The service SHALL accept payments only in INR, USD and EUR. Requests in any other currency SHALL be rejected with error code UNSUPPORTED_CURRENCY.</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          
+        </td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/validation.py:8 ">payflow/validation.py:8</li>
+          
+            <li title="payflow/validation.py:17 ">payflow/validation.py:17</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            
+            <li class="test-unkn" title="tests/test_payments.py::test_rejects_unsupported_currency">? tests/test_payments.py::test_rejects_un…</li>
+            
+          
+            
+            <li class="test-unkn" title="tests/test_payments.py::test_accepts_supported_currency">? tests/test_payments.py::test_accepts_su…</li>
+            
+          
+          </ul>
+          
+        </td>
+        <td class="td-rats">SUPPORTED_CURRENCIES = {&#34;INR&#34;,&#34;USD&#34;,&#34;EUR&#34;} and UNSUPPORTED_CURRENCY error code match the spec exactly; two tests assert both rejection and acceptance.</td>
+      </tr>
+      
+      <tr class="row-DRIFT" data-verdict="DRIFT"
+          data-id="PF-002"
+          data-prio="Critical"
+          data-area="Limits"
+          data-text="The amount of a single transaction SHALL be greater than zero and SHALL NOT exceed INR 1,00,000.00 (INR-equivalent). Requests above the limit SHALL be rejected with AMOUNT_LIMIT_EXCEEDED.">
+        <td class="td-id">PF-002</td>
+        <td class="td-prio">
+          <span class="prio prio-Critical">Critical</span>
+        </td>
+        <td class="td-area">Limits</td>
+        <td class="td-text">
+          
+          
+          <span class="req-short">The amount of a single transaction SHALL be greater than zero and SHALL NOT exceed INR 1,00,000.00 (INR-equivalent). Re…</span>
+          <span class="req-full">The amount of a single transaction SHALL be greater than zero and SHALL NOT exceed INR 1,00,000.00 (INR-equivalent). Requests above the limit SHALL be rejected with AMOUNT_LIMIT_EXCEEDED.</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          
+        </td>
+        <td><span class="chip chip-DRIFT">DRIFT</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/validation.py:11 ">payflow/validation.py:11</li>
+          
+            <li title="payflow/validation.py:35 ">payflow/validation.py:35</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            
+            <li class="test-unkn" title="tests/test_payments.py::test_large_payment_within_limit">? tests/test_payments.py::test_large_paym…</li>
+            
+          
+          </ul>
+          
+        </td>
+        <td class="td-rats">MAX_TXN_AMOUNT_INR is 200000.00 but spec requires INR 1,00,000.00 (=100000); test_large_payment_within_limit asserts 150000 INR is accepted, which contradicts the spec limit.</td>
+      </tr>
+      
+      <tr class="row-COVERED" data-verdict="COVERED"
+          data-id="PF-003"
+          data-prio="Critical"
+          data-area="Integrity"
+          data-text="Payment creation SHALL be idempotent: a repeated request with the same idempotency key within 24 hours SHALL return the original payment and SHALL NOT create a new charge.">
+        <td class="td-id">PF-003</td>
+        <td class="td-prio">
+          <span class="prio prio-Critical">Critical</span>
+        </td>
+        <td class="td-area">Integrity</td>
+        <td class="td-text">
+          
+          
+          <span class="req-short">Payment creation SHALL be idempotent: a repeated request with the same idempotency key within 24 hours SHALL return the…</span>
+          <span class="req-full">Payment creation SHALL be idempotent: a repeated request with the same idempotency key within 24 hours SHALL return the original payment and SHALL NOT create a new charge.</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          
+        </td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/service.py:18 ">payflow/service.py:18</li>
+          
+            <li title="payflow/service.py:36 ">payflow/service.py:36</li>
+          
+            <li title="payflow/service.py:37 ">payflow/service.py:37</li>
+          
+            <li title="payflow/service.py:38 ">payflow/service.py:38</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            
+            <li class="test-unkn" title="tests/test_payments.py::test_idempotent_create_returns_same_payment">? tests/test_payments.py::test_idempotent…</li>
+            
+          
+          </ul>
+          
+        </td>
+        <td class="td-rats">IDEMPOTENCY_TTL=24h matches spec; dedup logic returns original payment within TTL; test asserts same id and no duplicate charge.</td>
+      </tr>
+      
+      <tr class="row-UNTESTED" data-verdict="UNTESTED"
+          data-id="PF-004"
+          data-prio="High"
+          data-area="Integrity"
+          data-text="Monetary amounts SHALL be stored as integer minor units (paise/cents). Floating-point amounts SHALL be rejected.">
+        <td class="td-id">PF-004</td>
+        <td class="td-prio">
+          <span class="prio prio-High">High</span>
+        </td>
+        <td class="td-area">Integrity</td>
+        <td class="td-text">
+          
+          
+          Monetary amounts SHALL be stored as integer minor units (paise/cents). Floating-point amounts SHALL be rejected.
+          
+        </td>
+        <td><span class="chip chip-UNTESTED">UNTESTED</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/validation.py:26 ">payflow/validation.py:26</li>
+          
+            <li title="payflow/validation.py:27 ">payflow/validation.py:27</li>
+          
+            <li title="payflow/models.py:38 ">payflow/models.py:38</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <span class="no-data">—</span>
+          
+        </td>
+        <td class="td-rats">to_minor_units rejects float inputs and amount_minor is typed int, but no test asserts that a float argument raises INVALID_AMOUNT.</td>
+      </tr>
+      
+      <tr class="row-DRIFT" data-verdict="DRIFT"
+          data-id="PF-005"
+          data-prio="High"
+          data-area="Refunds"
+          data-text="A refund SHALL only be permitted within 30 days of capture. Later requests SHALL be rejected with REFUND_WINDOW_EXPIRED.">
+        <td class="td-id">PF-005</td>
+        <td class="td-prio">
+          <span class="prio prio-High">High</span>
+        </td>
+        <td class="td-area">Refunds</td>
+        <td class="td-text">
+          
+          
+          A refund SHALL only be permitted within 30 days of capture. Later requests SHALL be rejected with REFUND_WINDOW_EXPIRED.
+          
+        </td>
+        <td><span class="chip chip-DRIFT">DRIFT</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/service.py:19 ">payflow/service.py:19</li>
+          
+            <li title="payflow/service.py:85 ">payflow/service.py:85</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <span class="no-data">—</span>
+          
+        </td>
+        <td class="td-rats">REFUND_WINDOW is timedelta(days=60) but spec requires 30 days; no test covers this boundary at all.</td>
+      </tr>
+      
+      <tr class="row-COVERED" data-verdict="COVERED"
+          data-id="PF-006"
+          data-prio="Critical"
+          data-area="Refunds"
+          data-text="The cumulative refunded amount SHALL NOT exceed the captured amount. Violations SHALL be rejected with REFUND_EXCEEDS_CAPTURE.">
+        <td class="td-id">PF-006</td>
+        <td class="td-prio">
+          <span class="prio prio-Critical">Critical</span>
+        </td>
+        <td class="td-area">Refunds</td>
+        <td class="td-text">
+          
+          
+          <span class="req-short">The cumulative refunded amount SHALL NOT exceed the captured amount. Violations SHALL be rejected with REFUND_EXCEEDS_C…</span>
+          <span class="req-full">The cumulative refunded amount SHALL NOT exceed the captured amount. Violations SHALL be rejected with REFUND_EXCEEDS_CAPTURE.</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          
+        </td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/service.py:88 ">payflow/service.py:88</li>
+          
+            <li title="payflow/service.py:89 ">payflow/service.py:89</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            
+            <li class="test-unkn" title="tests/test_payments.py::test_refund_cannot_exceed_capture">? tests/test_payments.py::test_refund_can…</li>
+            
+          
+          </ul>
+          
+        </td>
+        <td class="td-rats">Guard on refunded_minor + refund_minor &gt; amount_minor raises REFUND_EXCEEDS_CAPTURE; test asserts exact error code after cumulative over-refund.</td>
+      </tr>
+      
+      <tr class="row-COVERED" data-verdict="COVERED"
+          data-id="PF-007"
+          data-prio="Critical"
+          data-area="Audit"
+          data-text="Every payment state change SHALL write an audit record containing payment id, actor, previous state, new state and timestamp.">
+        <td class="td-id">PF-007</td>
+        <td class="td-prio">
+          <span class="prio prio-Critical">Critical</span>
+        </td>
+        <td class="td-area">Audit</td>
+        <td class="td-text">
+          
+          
+          <span class="req-short">Every payment state change SHALL write an audit record containing payment id, actor, previous state, new state and timestamp.</span>
+          <span class="req-full">Every payment state change SHALL write an audit record containing payment id, actor, previous state, new state and timestamp.</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          
+        </td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/audit.py:10 ">payflow/audit.py:10</li>
+          
+            <li title="payflow/audit.py:22 ">payflow/audit.py:22</li>
+          
+            <li title="payflow/service.py:57 ">payflow/service.py:57</li>
+          
+            <li title="payflow/service.py:66 ">payflow/service.py:66</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            
+            <li class="test-unkn" title="tests/test_payments.py::test_state_changes_are_audited">? tests/test_payments.py::test_state_chan…</li>
+            
+          
+          </ul>
+          
+        </td>
+        <td class="td-rats">AuditRecord captures payment_id, actor, old_state, new_state, timestamp for every transition; test asserts the full sequence including actor name.</td>
+      </tr>
+      
+      <tr class="row-VIOLATION" data-verdict="VIOLATION"
+          data-id="PF-008"
+          data-prio="Critical"
+          data-area="Security / PCI-DSS"
+          data-text="Full card numbers (PAN) SHALL NEVER be written to application logs. Where a card must be referenced, only the last four digits MAY be shown (PCI-DSS Req. 3.4).">
+        <td class="td-id">PF-008</td>
+        <td class="td-prio">
+          <span class="prio prio-Critical">Critical</span>
+        </td>
+        <td class="td-area">Security / PCI-DSS</td>
+        <td class="td-text">
+          
+          
+          <span class="req-short">Full card numbers (PAN) SHALL NEVER be written to application logs. Where a card must be referenced, only the last four…</span>
+          <span class="req-full">Full card numbers (PAN) SHALL NEVER be written to application logs. Where a card must be referenced, only the last four digits MAY be shown (PCI-DSS Req. 3.4).</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          
+        </td>
+        <td><span class="chip chip-VIOLATION">VIOLATION</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/service.py:45 ">payflow/service.py:45</li>
+          
+            <li title="payflow/service.py:46 ">payflow/service.py:46</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <span class="no-data">—</span>
+          
+        </td>
+        <td class="td-rats">log.info logs the raw card_number variable (full PAN) in create_payment; spec PF-008/PCI-DSS Req 3.4 prohibits logging full PANs — only last four digits may appear.</td>
+      </tr>
+      
+      <tr class="row-UNTESTED" data-verdict="UNTESTED"
+          data-id="PF-009"
+          data-prio="Medium"
+          data-area="Resilience"
+          data-text="Calls to the card gateway SHALL be retried at most 3 times with exponential backoff (1s, 2s, 4s) on HTTP 5xx or timeout. HTTP 4xx responses SHALL NOT be retried.">
+        <td class="td-id">PF-009</td>
+        <td class="td-prio">
+          <span class="prio prio-Medium">Medium</span>
+        </td>
+        <td class="td-area">Resilience</td>
+        <td class="td-text">
+          
+          
+          <span class="req-short">Calls to the card gateway SHALL be retried at most 3 times with exponential backoff (1s, 2s, 4s) on HTTP 5xx or timeout…</span>
+          <span class="req-full">Calls to the card gateway SHALL be retried at most 3 times with exponential backoff (1s, 2s, 4s) on HTTP 5xx or timeout. HTTP 4xx responses SHALL NOT be retried.</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          
+        </td>
+        <td><span class="chip chip-UNTESTED">UNTESTED</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/gateway.py:18 ">payflow/gateway.py:18</li>
+          
+            <li title="payflow/gateway.py:33 ">payflow/gateway.py:33</li>
+          
+            <li title="payflow/gateway.py:35 ">payflow/gateway.py:35</li>
+          
+            <li title="payflow/gateway.py:37 ">payflow/gateway.py:37</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <span class="no-data">—</span>
+          
+        </td>
+        <td class="td-rats">BACKOFF_SECONDS=(1,2,4) and 4xx no-retry logic are implemented correctly, but no test asserts retry count, backoff timing, or 4xx pass-through.</td>
+      </tr>
+      
+      <tr class="row-COVERED" data-verdict="COVERED"
+          data-id="PF-010"
+          data-prio="High"
+          data-area="Abuse prevention"
+          data-text="Each merchant SHALL be limited to 20 payment-creation requests per rolling minute. Excess requests SHALL be rejected with RATE_LIMITED.">
+        <td class="td-id">PF-010</td>
+        <td class="td-prio">
+          <span class="prio prio-High">High</span>
+        </td>
+        <td class="td-area">Abuse prevention</td>
+        <td class="td-text">
+          
+          
+          <span class="req-short">Each merchant SHALL be limited to 20 payment-creation requests per rolling minute. Excess requests SHALL be rejected wi…</span>
+          <span class="req-full">Each merchant SHALL be limited to 20 payment-creation requests per rolling minute. Excess requests SHALL be rejected with RATE_LIMITED.</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          
+        </td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/ratelimit.py:9 ">payflow/ratelimit.py:9</li>
+          
+            <li title="payflow/ratelimit.py:24 ">payflow/ratelimit.py:24</li>
+          
+            <li title="payflow/ratelimit.py:25 ">payflow/ratelimit.py:25</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            
+            <li class="test-unkn" title="tests/test_payments.py::test_rate_limit_per_merchant">? tests/test_payments.py::test_rate_limit…</li>
+            
+          
+          </ul>
+          
+        </td>
+        <td class="td-rats">MAX_REQUESTS_PER_MINUTE=20 and RATE_LIMITED error match spec; test exhausts 20 requests for m1 and asserts rejection, then passes m2 (per-merchant isolation).</td>
+      </tr>
+      
+      <tr class="row-MISSING" data-verdict="MISSING"
+          data-id="PF-011"
+          data-prio="Critical"
+          data-area="Risk"
+          data-text="Payments with an INR-equivalent amount above INR 50,000.00 SHALL be flagged as requiring step-up authentication (2FA) before authorization.">
+        <td class="td-id">PF-011</td>
+        <td class="td-prio">
+          <span class="prio prio-Critical">Critical</span>
+        </td>
+        <td class="td-area">Risk</td>
+        <td class="td-text">
+          
+          
+          <span class="req-short">Payments with an INR-equivalent amount above INR 50,000.00 SHALL be flagged as requiring step-up authentication (2FA) b…</span>
+          <span class="req-full">Payments with an INR-equivalent amount above INR 50,000.00 SHALL be flagged as requiring step-up authentication (2FA) before authorization.</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          
+        </td>
+        <td><span class="chip chip-MISSING">MISSING</span></td>
+        <td class="td-refs">
+          
+          <span class="no-data">—</span>
+          
+        </td>
+        <td class="td-refs">
+          
+          <span class="no-data">—</span>
+          
+        </td>
+        <td class="td-rats">No code anywhere checks for INR-equivalent &gt; 50000 to flag step-up/2FA before authorization; the requirement has no implementation.</td>
+      </tr>
+      
+      <tr class="row-COVERED" data-verdict="COVERED"
+          data-id="PF-012"
+          data-prio="High"
+          data-area="Lifecycle"
+          data-text="Payment status SHALL follow CREATED -&gt; AUTHORIZED -&gt; CAPTURED -&gt; PARTIALLY_REFUNDED/REFUNDED (or FAILED). Any other transition SHALL be rejected with INVALID_TRANSITION.">
+        <td class="td-id">PF-012</td>
+        <td class="td-prio">
+          <span class="prio prio-High">High</span>
+        </td>
+        <td class="td-area">Lifecycle</td>
+        <td class="td-text">
+          
+          
+          <span class="req-short">Payment status SHALL follow CREATED -&gt; AUTHORIZED -&gt; CAPTURED -&gt; PARTIALLY_REFUNDED/REFUNDED (or FAILED). Any other tra…</span>
+          <span class="req-full">Payment status SHALL follow CREATED -&gt; AUTHORIZED -&gt; CAPTURED -&gt; PARTIALLY_REFUNDED/REFUNDED (or FAILED). Any other transition SHALL be rejected with INVALID_TRANSITION.</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          
+        </td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/models.py:19 ">payflow/models.py:19</li>
+          
+            <li title="payflow/service.py:62 ">payflow/service.py:62</li>
+          
+            <li title="payflow/service.py:63 ">payflow/service.py:63</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            
+            <li class="test-unkn" title="tests/test_payments.py::test_invalid_transition_rejected">? tests/test_payments.py::test_invalid_tr…</li>
+            
+          
+            
+            <li class="test-unkn" title="tests/test_payments.py::test_happy_path_lifecycle">? tests/test_payments.py::test_happy_path…</li>
+            
+          
+          </ul>
+          
+        </td>
+        <td class="td-rats">ALLOWED_TRANSITIONS enforces the exact state machine from the spec; INVALID_TRANSITION error matches; tests cover both happy path and illegal transition.</td>
+      </tr>
+      
+      <tr class="row-UNTESTED" data-verdict="UNTESTED"
+          data-id="PF-013"
+          data-prio="Medium"
+          data-area="FX"
+          data-text="Currency conversion SHALL use exchange rates no older than 15 minutes; otherwise the request SHALL be rejected with STALE_RATE.">
+        <td class="td-id">PF-013</td>
+        <td class="td-prio">
+          <span class="prio prio-Medium">Medium</span>
+        </td>
+        <td class="td-area">FX</td>
+        <td class="td-text">
+          
+          
+          <span class="req-short">Currency conversion SHALL use exchange rates no older than 15 minutes; otherwise the request SHALL be rejected with STA…</span>
+          <span class="req-full">Currency conversion SHALL use exchange rates no older than 15 minutes; otherwise the request SHALL be rejected with STALE_RATE.</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          
+        </td>
+        <td><span class="chip chip-UNTESTED">UNTESTED</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/fx.py:10 ">payflow/fx.py:10</li>
+          
+            <li title="payflow/fx.py:33 ">payflow/fx.py:33</li>
+          
+            <li title="payflow/fx.py:34 ">payflow/fx.py:34</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <span class="no-data">—</span>
+          
+        </td>
+        <td class="td-rats">MAX_RATE_AGE=15 minutes and STALE_RATE error are implemented correctly, but no test sets an old rate timestamp and asserts rejection.</td>
+      </tr>
+      
+      <tr class="row-COVERED" data-verdict="COVERED"
+          data-id="PF-014"
+          data-prio="Medium"
+          data-area="Data"
+          data-text="All timestamps SHALL be stored in UTC using ISO-8601 format.">
+        <td class="td-id">PF-014</td>
+        <td class="td-prio">
+          <span class="prio prio-Medium">Medium</span>
+        </td>
+        <td class="td-area">Data</td>
+        <td class="td-text">
+          
+          
+          All timestamps SHALL be stored in UTC using ISO-8601 format.
+          
+        </td>
+        <td><span class="chip chip-COVERED">COVERED</span></td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            <li title="payflow/models.py:29 ">payflow/models.py:29</li>
+          
+            <li title="payflow/models.py:31 ">payflow/models.py:31</li>
+          
+            <li title="payflow/models.py:42 ">payflow/models.py:42</li>
+          
+          </ul>
+          
+        </td>
+        <td class="td-refs">
+          
+          <ul class="ref-list">
+          
+            
+            <li class="test-unkn" title="tests/test_payments.py::test_timestamps_are_utc_iso8601">? tests/test_payments.py::test_timestamps…</li>
+            
+          
+          </ul>
+          
+        </td>
+        <td class="td-rats">utc_now() returns datetime.now(timezone.utc).isoformat() giving UTC ISO-8601; test parses created_at and audit timestamp, verifies zero utcoffset and +00:00 suffix.</td>
+      </tr>
+      
+      </tbody>
+    </table>
+  </div>
+
+  <p style="margin-top:8px; font-size:12px; color:var(--muted);"
+     id="rowCount">Showing 14 of 14 rows</p>
+
+  <footer class="footer">Made with IBM Bob</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ── data ──
+  var PRIO = {Critical: 0, High: 1, Medium: 2, Low: 3};
+  var activeFilter = "ALL";
+  var searchTerm   = "";
+  var sortCol      = null;
+  var sortAsc      = true;
+
+  var tbody = document.getElementById("rtmBody");
+  var searchBox = document.getElementById("searchBox");
+  var rowCount = document.getElementById("rowCount");
+
+  // ── filter buttons ──
+  document.querySelectorAll(".filter-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".filter-btn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      activeFilter = btn.getAttribute("data-filter");
+      applyFilters();
+    });
+  });
+
+  // ── search ──
+  searchBox.addEventListener("input", function () {
+    searchTerm = searchBox.value.toLowerCase();
+    applyFilters();
+  });
+
+  function applyFilters() {
+    var rows = tbody.querySelectorAll("tr");
+    var visible = 0;
+    rows.forEach(function (tr) {
+      var verd = tr.getAttribute("data-verdict") || "";
+      var matchFilter = (activeFilter === "ALL" || verd === activeFilter);
+      var text = (tr.getAttribute("data-id") + " " +
+                  tr.getAttribute("data-area") + " " +
+                  tr.getAttribute("data-text")).toLowerCase();
+      var matchSearch = (!searchTerm || text.indexOf(searchTerm) !== -1);
+      if (matchFilter && matchSearch) {
+        tr.classList.remove("hidden");
+        visible++;
+      } else {
+        tr.classList.add("hidden");
+      }
+    });
+    rowCount.textContent = "Showing " + visible + " of " + rows.length + " rows";
+  }
+
+  // ── sort ──
+  document.querySelectorAll("thead th[data-col]").forEach(function (th) {
+    th.addEventListener("click", function () {
+      var col = th.getAttribute("data-col");
+      if (sortCol === col) { sortAsc = !sortAsc; } else { sortCol = col; sortAsc = true; }
+      document.querySelectorAll("thead th").forEach(function (h) { h.classList.remove("sorted"); });
+      th.classList.add("sorted");
+      var icon = th.querySelector(".sort-icon");
+      if (icon) icon.textContent = sortAsc ? "↑" : "↓";
+      sortTable(col, sortAsc);
+    });
+  });
+
+  function sortTable(col, asc) {
+    var rows = Array.prototype.slice.call(tbody.querySelectorAll("tr"));
+    rows.sort(function (a, b) {
+      var av = getCellVal(a, col);
+      var bv = getCellVal(b, col);
+      if (av < bv) return asc ? -1 : 1;
+      if (av > bv) return asc ?  1 : -1;
+      return 0;
+    });
+    rows.forEach(function (r) { tbody.appendChild(r); });
+  }
+
+  function getCellVal(tr, col) {
+    if (col === "id")      return tr.getAttribute("data-id") || "";
+    if (col === "prio")    return PRIO[tr.getAttribute("data-prio")] !== undefined
+                                  ? PRIO[tr.getAttribute("data-prio")]
+                                  : 99;
+    if (col === "area")    return (tr.getAttribute("data-area") || "").toLowerCase();
+    if (col === "verdict") return tr.getAttribute("data-verdict") || "";
+    if (col === "text")    return (tr.getAttribute("data-text") || "").toLowerCase();
+    return "";
+  }
+
+  // ── expand/collapse requirement text ──
+  window.toggleText = function (el) {
+    var short = el.previousElementSibling;
+    var full  = short.previousElementSibling;
+    if (full.style.display === "none" || full.style.display === "") {
+      full.style.display = "inline";
+      short.style.display = "none";
+      el.textContent = "▲ less";
+    } else {
+      full.style.display = "none";
+      short.style.display = "inline";
+      el.textContent = "▼ more";
+    }
+  };
+})();
+</script>
+</body>
+</html>

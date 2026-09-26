@@ -316,9 +316,11 @@ class TestGetGaps:
 # ---------------------------------------------------------------------------
 
 class TestRenderReport:
-    def test_returns_stub_string(self, payflow_copy: Path) -> None:
+    def test_returns_dict_with_paths(self, payflow_copy: Path) -> None:
         from traceproof.mcp_server import render_report
 
         result = render_report(str(payflow_copy))
-        assert isinstance(result, str)
-        assert "step 3" in result.lower()
+        assert isinstance(result, dict)
+        assert "html" in result
+        assert "summary" in result
+        assert Path(result["html"]).exists()

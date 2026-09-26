@@ -196,8 +196,37 @@ def _cmd_check(args: argparse.Namespace) -> int:
 
 
 def _cmd_report(args: argparse.Namespace) -> int:
-    """Stub — report generation coming in step 3."""
-    print("report: coming in step 3 (not yet implemented).")
+    """Render the RTM report: HTML, CSV, and audit-pack ZIP."""
+    import webbrowser
+    from traceproof.report import render_report
+
+    repo_path = Path(args.repo)
+    if not repo_path.exists():
+        print(f"ERROR: repo path not found: {repo_path}", file=sys.stderr)
+        return 1
+
+    spec_path = Path(args.spec) if args.spec else None
+    if spec_path is not None and not spec_path.exists():
+        print(f"ERROR: spec file not found: {spec_path}", file=sys.stderr)
+        return 1
+
+    print(f"Rendering report for {repo_path} …")
+    paths, summary = render_report(repo_path, spec_path)
+
+    print()
+    print("=== TraceProof Report ===")
+    print(f"  HTML       : {paths.html}")
+    print(f"  CSV        : {paths.csv}")
+    print(f"  Audit pack : {paths.zip}")
+    print(f"  Coverage   : {summary.coverage_pct:.1f}% ({summary.covered}/{summary.total})")
+    if summary.critical_gaps:
+        print(f"  Critical gaps: {summary.critical_gaps}")
+    if summary.by_verdict:
+        print("  Breakdown  :", ", ".join(f"{k}={v}" for k, v in sorted(summary.by_verdict.items())))
+
+    if getattr(args, "open", False):
+        webbrowser.open(paths.html.as_uri())
+
     return 0
 
 
@@ -225,12 +254,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Minimum coverage percentage (default: 80).",
     )
 
-    # report (stub)
-    report_p = sub.add_parser("report", help="Render RTM report (coming in step 3).")
-    report_p.add_argument("--output", required=True, metavar="PATH", help="Output file path.")
-    report_p.add_argument(
-        "--format", choices=["html", "md"], default="html", help="Output format."
-    )
+    # report
+    report_p = sub.add_parser("report", help="Render HTML/CSV/ZIP RTM report.")
+    report_p.add_argument("--repo", required=True, metavar="PATH", help="Path to target repo.")
+    report_p.add_argument("--spec", default=None, metavar="PATH", help="Path to spec document (optional, for display).")
+    report_p.add_argument("--open", action="store_true", help="Open the HTML report in a browser after rendering.")
 
     args = parser.parse_args(argv)
 

@@ -148,7 +148,12 @@ def test_check_exits_1_on_no_requirements_json(tmp_path: Path) -> None:
 # report stub
 # ---------------------------------------------------------------------------
 
-def test_report_stub_exits_0(tmp_path: Path) -> None:
+def test_report_exits_0(tmp_path: Path) -> None:
+    """report command succeeds even with an empty repo (no requirements)."""
+    repo = tmp_path / "repo"
+    store = repo / ".traceproof"
+    store.mkdir(parents=True)
+    (store / "requirements.json").write_text("[]", encoding="utf-8")
     with pytest.raises(SystemExit) as exc:
-        main(["report", "--output", str(tmp_path / "out.html")])
+        main(["report", "--repo", str(repo)])
     assert exc.value.code == 0

@@ -336,18 +336,39 @@ def get_gaps(repo_path: str, severity: str | None = None) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 @mcp.tool(
-    description="Render the RTM as a human-readable report. (Stub — full HTML/Markdown output arrives in step 3.)"
+    description=(
+        "Render the RTM as a human-readable report. "
+        "Writes <repo>/.traceproof/reports/rtm.html, rtm.csv, and audit_pack.zip. "
+        "Returns {html, csv, zip, summary} with paths and headline statistics."
+    )
 )
-def render_report(repo_path: str) -> str:
-    """Render the RTM report (stub implementation).
+def render_report(repo_path: str, spec_path: str | None = None) -> dict[str, Any]:
+    """Render the RTM HTML/CSV/ZIP report.
 
     Args:
         repo_path: Absolute or relative path to the repository root.
+        spec_path: Optional path to the specification document (for display only).
 
     Returns:
-        Placeholder message — real rendering arrives in step 3.
+        Dict with keys 'html', 'csv', 'zip' (file paths) and 'summary' (statistics).
     """
-    return "report rendering arrives in step 3"
+    from traceproof.report import render_report as _render
+
+    paths, summary = _render(repo_path, spec_path)
+    return {
+        "html": str(paths.html),
+        "csv": str(paths.csv),
+        "zip": str(paths.zip),
+        "summary": {
+            "total": summary.total,
+            "covered": summary.covered,
+            "coverage_pct": summary.coverage_pct,
+            "by_verdict": summary.by_verdict,
+            "critical_gaps": summary.critical_gaps,
+            "commit_sha": summary.commit_sha,
+            "generated_at": summary.generated_at,
+        },
+    }
 
 
 # ---------------------------------------------------------------------------

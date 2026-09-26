@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TraceProof — Requirements Traceability Matrix</title>
+<style>
+/* ── Reset / base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #ffffff;
+  --surface:   #f7f8fa;
+  --border:    #e5e7eb;
+  --text:      #1f2328;
+  --muted:     #57606a;
+  --accent:    #3b82d4;
+  --c-covered:   #16a34a;
+  --c-untested:  #d97706;
+  --c-drift:     #ea580c;
+  --c-violation: #dc2626;
+  --c-missing:   #991b1b;
+  --c-pending:   #6b7280;
+  --bg-violation:#fff5f5;
+  --bg-drift:    #fff7ed;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --border:   #30363d;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --bg-violation:#2d1b1b;
+    --bg-drift:    #2d1f0e;
+  }
+}
+body {
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  background: var(--bg);
+  color: var(--text);
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Layout ── */
+.page { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
+
+/* ── Header ── */
+.header { border-bottom: 2px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; }
+.header h1 { font-size: 22px; font-weight: 700; color: var(--text); }
+.header-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.header-meta span { display: flex; align-items: center; gap: 4px; }
+.header-meta .label { font-weight: 600; color: var(--text); }
+
+/* ── KPI row ── */
+.kpi-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 24px; }
+
+/* Coverage ring */
+.ring-wrap { position: relative; width: 96px; height: 96px; flex-shrink: 0; }
+.ring-wrap svg { transform: rotate(-90deg); }
+.ring-bg  { fill: none; stroke: var(--border); stroke-width: 10; }
+.ring-arc { fill: none; stroke: var(--c-covered); stroke-width: 10;
+            stroke-linecap: round; transition: stroke-dasharray .6s ease; }
+.ring-label { position: absolute; inset: 0; display: flex; flex-direction: column;
+               align-items: center; justify-content: center; }
+.ring-pct { font-size: 20px; font-weight: 700; }
+.ring-sub { font-size: 10px; color: var(--muted); }
+
+/* Verdict tiles */
+.verdict-tiles { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+.v-tile { border-radius: 8px; padding: 10px 16px; min-width: 88px; text-align: center;
+           border: 1px solid var(--border); background: var(--surface); }
+.v-tile .count { font-size: 22px; font-weight: 700; }
+.v-tile .name  { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.v-tile.critical-gap .count { color: var(--c-violation); }
+.v-tile.v-COVERED   .count { color: var(--c-covered);   }
+.v-tile.v-UNTESTED  .count { color: var(--c-untested);  }
+.v-tile.v-DRIFT     .count { color: var(--c-drift);     }
+.v-tile.v-VIOLATION .count { color: var(--c-violation); }
+.v-tile.v-MISSING   .count { color: var(--c-missing);   }
+.v-tile.v-PENDING   .count { color: var(--c-pending);   }
+
+/* ── Before → After strip ── */
+.history-strip { background: var(--surface); border: 1px solid var(--border);
+                  border-radius: 8px; padding: 12px 16px; margin-bottom: 24px;
+                  display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.history-strip .hs-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.history-strip .hs-val   { font-size: 18px; font-weight: 700; }
+.history-strip .hs-arrow { font-size: 20px; color: var(--muted); }
+
+/* ── Controls ── */
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+.filter-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);
+               background: var(--surface); color: var(--text); cursor: pointer; font-size: 12px;
+               font-family: inherit; transition: background .15s, border-color .15s; }
+.filter-btn:hover { border-color: var(--accent); }
+.filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.search-box { margin-left: auto; padding: 5px 12px; border: 1px solid var(--border);
+               border-radius: 6px; background: var(--surface); color: var(--text);
+               font-family: inherit; font-size: 12px; width: 220px; outline: none; }
+.search-box:focus { border-color: var(--accent); }
+
+/* ── Matrix table ── */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; }
+thead th { background: var(--surface); font-size: 11px; text-transform: uppercase;
+            letter-spacing: .05em; color: var(--muted); padding: 10px 12px;
+            text-align: left; border-bottom: 1px solid var(--border); cursor: pointer;
+            user-select: none; white-space: nowrap; }
+thead th:hover { color: var(--text); }
+thead th .sort-icon { margin-left: 4px; opacity: .4; }
+thead th.sorted .sort-icon { opacity: 1; }
+tbody tr { border-bottom: 1px solid var(--border); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr.row-VIOLATION { background: var(--bg-violation); }
+tbody tr.row-DRIFT     { background: var(--bg-drift);     }
+tbody tr:hover { filter: brightness(0.97); }
+td { padding: 10px 12px; vertical-align: top; font-size: 13px; }
+td.td-id   { white-space: nowrap; font-weight: 600; font-size: 12px; }
+td.td-prio { white-space: nowrap; }
+td.td-area { white-space: nowrap; font-size: 12px; color: var(--muted); }
+td.td-text { max-width: 340px; }
+td.td-refs { font-size: 12px; max-width: 200px; }
+td.td-rats { font-size: 12px; color: var(--muted); max-width: 220px; }
+
+/* Expandable requirement text */
+.req-short { }
+.req-full  { display: none; }
+.req-toggle { font-size: 11px; color: var(--accent); cursor: pointer; }
+
+/* Verdict chip */
+.chip { display: inline-block; padding: 2px 8px; border-radius: 12px;
+         font-size: 11px; font-weight: 600; letter-spacing: .04em; }
+.chip-COVERED   { background: #dcfce7; color: #15803d; }
+.chip-UNTESTED  { background: #fef3c7; color: #92400e; }
+.chip-DRIFT     { background: #ffedd5; color: #9a3412; }
+.chip-VIOLATION { background: #fee2e2; color: #991b1b; }
+.chip-MISSING   { background: #fce8e8; color: #7f1d1d; }
+.chip-PENDING   { background: #f3f4f6; color: #374151; }
+@media (prefers-color-scheme: dark) {
+  .chip-COVERED   { background: #14532d; color: #86efac; }
+  .chip-UNTESTED  { background: #451a03; color: #fde68a; }
+  .chip-DRIFT     { background: #431407; color: #fdba74; }
+  .chip-VIOLATION { background: #450a0a; color: #fca5a5; }
+  .chip-MISSING   { background: #3b0d0d; color: #f87171; }
+  .chip-PENDING   { background: #1f2937; color: #9ca3af; }
+}
+
+/* Priority badge */
+.prio { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.prio-Critical { background: #fee2e2; color: #991b1b; }
+.prio-High     { background: #ffedd5; color: #9a3412; }
+.prio-Medium   { background: #fef3c7; color: #92400e; }
+.prio-Low      { background: #f0fdf4; color: #166534; }
+@media (prefers-color-scheme: dark) {
+  .prio-Critical { background: #450a0a; color: #fca5a5; }
+  .prio-High     { background: #431407; color: #fdba74; }
+  .prio-Medium   { background: #451a03; color: #fde68a; }
+  .prio-Low      { background: #052e16; color: #86efac; }
+}
+
+/* Code/test refs */
+.ref-list { list-style: none; }
+.ref-list li { padding: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.test-pass { color: var(--c-covered);   }
+.test-fail { color: var(--c-violation); }
+.test-unkn { color: var(--muted);       }
+.no-data   { color: var(--muted); font-style: italic; }
+
+/* Hidden row */
+tr.hidden { display: none; }
+
+/* Footer */
+.footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--border);
+           text-align: center; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <h1>TraceProof — Requirements Traceability Matrix</h1>
+    <div class="header-meta">
+      {% if spec_name %}
+      <span><span class="label">Spec</span>{{ spec_name }}</span>
+      {% endif %}
+      {% if commit_sha %}
+      <span><span class="label">Commit</span><code>{{ commit_sha }}</code></span>
+      {% endif %}
+      <span><span class="label">Generated</span>{{ generated_at }}</span>
+      <span><span class="label">Requirements</span>{{ summary.total }}</span>
+      <span><span class="label">Coverage</span>{{ "%.1f"|format(summary.coverage_pct) }}%</span>
+    </div>
+  </header>
+
+  <!-- ── KPI row ── -->
+  <div class="kpi-row">
+    <!-- Coverage ring -->
+    <div class="ring-wrap" title="{{ "%.1f"|format(summary.coverage_pct) }}% covered">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle class="ring-bg"  cx="48" cy="48" r="38"/>
+        <circle class="ring-arc" cx="48" cy="48" r="38"
+          stroke-dasharray="{{ ring_arc }} {{ ring_gap }}"
+          stroke-dashoffset="0"/>
+      </svg>
+      <div class="ring-label">
+        <span class="ring-pct">{{ "%.0f"|format(summary.coverage_pct) }}%</span>
+        <span class="ring-sub">covered</span>
+      </div>
+    </div>
+
+    <!-- Verdict tiles -->
+    <div class="verdict-tiles">
+      {% for vname in ["COVERED","UNTESTED","DRIFT","VIOLATION","MISSING","PENDING"] %}
+      {% set cnt = summary.by_verdict.get(vname, 0) %}
+      <div class="v-tile v-{{ vname }}">
+        <div class="count">{{ cnt }}</div>
+        <div class="name">{{ vname }}</div>
+      </div>
+      {% endfor %}
+      <!-- Critical gaps -->
+      {% set crit_gaps = summary.gaps | selectattr("requirement.priority", "equalto", "Critical") | list | length %}
+      <div class="v-tile critical-gap" title="Critical-priority gaps">
+        <div class="count">{{ crit_gaps }}</div>
+        <div class="name">Critical gaps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Before → After strip ── -->
+  {% if history_pct is not none %}
+  <div class="history-strip">
+    <span class="hs-label">Coverage history</span>
+    <span class="hs-val" style="color: var(--c-missing);">{{ "%.1f"|format(history_pct) }}%</span>
+    <span class="hs-arrow">→</span>
+    <span class="hs-val" style="color: var(--c-covered);">{{ "%.1f"|format(summary.coverage_pct) }}%</span>
+    <span style="font-size:12px; color: var(--muted);">
+      ({{ "%+.1f"|format(summary.coverage_pct - history_pct) }} pp since first record)
+    </span>
+  </div>
+  {% endif %}
+
+  <!-- ── Filter / search controls ── -->
+  <div class="controls">
+    <button class="filter-btn active" data-filter="ALL">All ({{ summary.total }})</button>
+    {% for vname in ["COVERED","UNTESTED","DRIFT","VIOLATION","MISSING","PENDING"] %}
+    {% set cnt = summary.by_verdict.get(vname, 0) %}
+    {% if cnt > 0 %}
+    <button class="filter-btn" data-filter="{{ vname }}">{{ vname }} ({{ cnt }})</button>
+    {% endif %}
+    {% endfor %}
+    <input type="search" class="search-box" placeholder="Search ID, area, text…" id="searchBox">
+  </div>
+
+  <!-- ── Matrix table ── -->
+  <div class="table-wrap">
+    <table id="rtmTable">
+      <thead>
+        <tr>
+          <th data-col="id">ID <span class="sort-icon">↕</span></th>
+          <th data-col="prio">Priority <span class="sort-icon">↕</span></th>
+          <th data-col="area">Area <span class="sort-icon">↕</span></th>
+          <th data-col="text">Requirement</th>
+          <th data-col="verdict">Verdict <span class="sort-icon">↕</span></th>
+          <th>Code refs</th>
+          <th>Tests</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody id="rtmBody">
+      {% for row in rows %}
+      <tr class="row-{{ row.verdict }}" data-verdict="{{ row.verdict }}"
+          data-id="{{ row.requirement.req_id }}"
+          data-prio="{{ row.requirement.priority }}"
+          data-area="{{ row.requirement.area }}"
+          data-text="{{ row.requirement.text | truncate(200, true, '…') }}">
+        <td class="td-id">{{ row.requirement.req_id }}</td>
+        <td class="td-prio">
+          <span class="prio prio-{{ row.requirement.priority }}">{{ row.requirement.priority }}</span>
+        </td>
+        <td class="td-area">{{ row.requirement.area }}</td>
+        <td class="td-text">
+          {% set short = row.requirement.text | truncate(120, true, '…') %}
+          {% if row.requirement.text | length > 120 %}
+          <span class="req-short">{{ short }}</span>
+          <span class="req-full">{{ row.requirement.text }}</span>
+          <span class="req-toggle" onclick="toggleText(this)">▼ more</span>
+          {% else %}
+          {{ row.requirement.text }}
+          {% endif %}
+        </td>
+        <td><span class="chip chip-{{ row.verdict }}">{{ row.verdict }}</span></td>
+        <td class="td-refs">
+          {% if row.code_refs %}
+          <ul class="ref-list">
+          {% for r in row.code_refs %}
+            <li title="{{ r.path }}:{{ r.line }} {{ r.symbol }}">{{ r.path | truncate(32, true, '…') }}:{{ r.line }}</li>
+          {% endfor %}
+          </ul>
+          {% else %}
+          <span class="no-data">—</span>
+          {% endif %}
+        </td>
+        <td class="td-refs">
+          {% if row.test_refs %}
+          <ul class="ref-list">
+          {% for t in row.test_refs %}
+            {% if t.passed == true %}
+            <li class="test-pass" title="{{ t.node }}">✓ {{ t.node | truncate(40, true, '…') }}</li>
+            {% elif t.passed == false %}
+            <li class="test-fail" title="{{ t.node }}">✗ {{ t.node | truncate(40, true, '…') }}</li>
+            {% else %}
+            <li class="test-unkn" title="{{ t.node }}">? {{ t.node | truncate(40, true, '…') }}</li>
+            {% endif %}
+          {% endfor %}
+          </ul>
+          {% else %}
+          <span class="no-data">—</span>
+          {% endif %}
+        </td>
+        <td class="td-rats">{{ row.rationale or "—" }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p style="margin-top:8px; font-size:12px; color:var(--muted);"
+     id="rowCount">Showing {{ rows | length }} of {{ rows | length }} rows</p>
+
+  <footer class="footer">Made with IBM Bob</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ── data ──
+  var PRIO = {Critical: 0, High: 1, Medium: 2, Low: 3};
+  var activeFilter = "ALL";
+  var searchTerm   = "";
+  var sortCol      = null;
+  var sortAsc      = true;
+
+  var tbody = document.getElementById("rtmBody");
+  var searchBox = document.getElementById("searchBox");
+  var rowCount = document.getElementById("rowCount");
+
+  // ── filter buttons ──
+  document.querySelectorAll(".filter-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".filter-btn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      activeFilter = btn.getAttribute("data-filter");
+      applyFilters();
+    });
+  });
+
+  // ── search ──
+  searchBox.addEventListener("input", function () {
+    searchTerm = searchBox.value.toLowerCase();
+    applyFilters();
+  });
+
+  function applyFilters() {
+    var rows = tbody.querySelectorAll("tr");
+    var visible = 0;
+    rows.forEach(function (tr) {
+      var verd = tr.getAttribute("data-verdict") || "";
+      var matchFilter = (activeFilter === "ALL" || verd === activeFilter);
+      var text = (tr.getAttribute("data-id") + " " +
+                  tr.getAttribute("data-area") + " " +
+                  tr.getAttribute("data-text")).toLowerCase();
+      var matchSearch = (!searchTerm || text.indexOf(searchTerm) !== -1);
+      if (matchFilter && matchSearch) {
+        tr.classList.remove("hidden");
+        visible++;
+      } else {
+        tr.classList.add("hidden");
+      }
+    });
+    rowCount.textContent = "Showing " + visible + " of " + rows.length + " rows";
+  }
+
+  // ── sort ──
+  document.querySelectorAll("thead th[data-col]").forEach(function (th) {
+    th.addEventListener("click", function () {
+      var col = th.getAttribute("data-col");
+      if (sortCol === col) { sortAsc = !sortAsc; } else { sortCol = col; sortAsc = true; }
+      document.querySelectorAll("thead th").forEach(function (h) { h.classList.remove("sorted"); });
+      th.classList.add("sorted");
+      var icon = th.querySelector(".sort-icon");
+      if (icon) icon.textContent = sortAsc ? "↑" : "↓";
+      sortTable(col, sortAsc);
+    });
+  });
+
+  function sortTable(col, asc) {
+    var rows = Array.prototype.slice.call(tbody.querySelectorAll("tr"));
+    rows.sort(function (a, b) {
+      var av = getCellVal(a, col);
+      var bv = getCellVal(b, col);
+      if (av < bv) return asc ? -1 : 1;
+      if (av > bv) return asc ?  1 : -1;
+      return 0;
+    });
+    rows.forEach(function (r) { tbody.appendChild(r); });
+  }
+
+  function getCellVal(tr, col) {
+    if (col === "id")      return tr.getAttribute("data-id") || "";
+    if (col === "prio")    return PRIO[tr.getAttribute("data-prio")] !== undefined
+                                  ? PRIO[tr.getAttribute("data-prio")]
+                                  : 99;
+    if (col === "area")    return (tr.getAttribute("data-area") || "").toLowerCase();
+    if (col === "verdict") return tr.getAttribute("data-verdict") || "";
+    if (col === "text")    return (tr.getAttribute("data-text") || "").toLowerCase();
+    return "";
+  }
+
+  // ── expand/collapse requirement text ──
+  window.toggleText = function (el) {
+    var short = el.previousElementSibling;
+    var full  = short.previousElementSibling;
+    if (full.style.display === "none" || full.style.display === "") {
+      full.style.display = "inline";
+      short.style.display = "none";
+      el.textContent = "▲ less";
+    } else {
+      full.style.display = "none";
+      short.style.display = "inline";
+      el.textContent = "▼ more";
+    }
+  };
+})();
+</script>
+</body>
+</html>

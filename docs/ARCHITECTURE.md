@@ -41,9 +41,10 @@ Verdict (str, Enum)
   MISSING    – no implementation found
 
 Requirement
-  req_id: str          # e.g. "PF-005"
-  text:   str          # full requirement sentence from spec
-  area:   str          # logical group (payments, refunds, security …)
+  req_id:   str        # e.g. "PF-005"
+  text:     str        # full requirement sentence from spec
+  area:     str        # logical group (payments, refunds, security …)
+  priority: str        # Critical | High | Medium | Low  (parsed from spec)
 
 CodeRef
   req_id: str
@@ -64,7 +65,7 @@ Evidence
   code_refs: list[CodeRef]
   test_refs: list[TestRef]
   rationale: str        # one sentence
-  severity:  str        # Critical | High | Medium | Low
+  severity:  str        # derived from Requirement.priority at record time
   timestamp: str        # UTC ISO-8601
 ```
 

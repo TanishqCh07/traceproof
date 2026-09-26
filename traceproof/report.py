@@ -98,10 +98,24 @@ def _load_requirements(repo_path: Path) -> list[Any]:
     return [requirement_from_dict(d) for d in json.loads(p.read_text(encoding="utf-8"))]
 
 
-def _load_tests_json(repo_path: Path) -> str:
-    """Return the raw content of tests.json (or '[]' when absent)."""
+def _load_tests(repo_path: Path) -> list[Any]:
+    """Return TestRef-like dicts from tests.json (or [] when absent)."""
+    from traceproof.models import TestRef
+
     p = repo_path / _STORE_DIR / _TESTS_FILE
-    return p.read_text(encoding="utf-8") if p.exists() else "[]"
+    if not p.exists():
+        return []
+    data = json.loads(p.read_text(encoding="utf-8"))
+    # Support both the old CLI format {req_id, path, line, node, passed}
+    # and the MCP run_tests format {node, file, line, passed}
+    refs: list[Any] = []
+    for item in data:
+        node = item.get("node", "")
+        passed = item.get("passed")
+        path = item.get("path") or item.get("file", "")
+        line = item.get("line", 0)
+        refs.append(TestRef(req_id="", path=path, line=line, node=node, passed=passed))
+    return refs
 
 
 def _first_coverage_pct(repo_path: Path) -> float | None:
@@ -272,7 +286,8 @@ def render_report(
     # ── load data ──────────────────────────────────────────────────────────
     requirements = _load_requirements(repo)
     evidence = latest_evidence(repo)
-    matrix = build_matrix(requirements, evidence, [])
+    test_results = _load_tests(repo)
+    matrix = build_matrix(requirements, evidence, test_results)
     rows = matrix.rows
     summary = matrix.summary
 

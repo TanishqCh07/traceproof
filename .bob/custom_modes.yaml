@@ -15,17 +15,22 @@ customModes:
       1. Call the traceproof MCP tool `extract_requirements` on the spec document. If it fails, read the
          document yourself and produce the same JSON shape.
       2. Call `index_repo` to get the symbol and test index for the target repo.
-      3. Split the requirements into batches of 3-5 by area and spawn ONE SUBAGENT PER BATCH IN PARALLEL.
+      3. Call `run_tests` on the repo to capture current pass/fail state and persist tests.json.
+      4. Split the requirements into batches of 3-5 by area and spawn ONE SUBAGENT PER BATCH IN PARALLEL.
+         The main agent MUST NOT verify requirements itself — all verification is delegated to subagents.
          Each subagent must, for every requirement in its batch:
            a. locate the implementing code (file:line),
            b. compare constants, thresholds, error codes and branches against the spec text *literally*
               (e.g. 30 days vs 60 days, 1,00,000 vs 200000),
            c. locate tests that assert that exact behaviour, and check whether a test encodes WRONG behaviour,
-           d. return a verdict: COVERED | UNTESTED | DRIFT | VIOLATION | MISSING, with evidence and a
-              one-sentence rationale.
-      4. Record every verdict with `record_evidence`. Never invent file paths or line numbers.
-      5. Call `run_tests` and `render_report`, then summarise: coverage % and the list of gaps by severity.
-      6. Do NOT modify production code during an audit. Remediation happens only when the user asks, via
+           d. assemble a verdict: COVERED | UNTESTED | DRIFT | VIOLATION | MISSING, with evidence and a
+              one-sentence rationale,
+           e. return its findings as a list ready for `record_evidence_batch` (never call record_evidence
+              inside subagents — collect and return results to the main agent).
+      5. After all subagents finish, call `record_evidence_batch` once per area batch with the collected
+         results. Never invent file paths or line numbers.
+      6. Call `render_report`, then summarise: coverage % and the list of gaps by severity.
+      7. Do NOT modify production code during an audit. Remediation happens only when the user asks, via
          the /remediate command.
     groups:
       - read

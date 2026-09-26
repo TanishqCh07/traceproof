@@ -33,12 +33,12 @@ def run_tests(repo_path: str | Path, timeout: int = 120) -> list[TestRef]:
         RuntimeError: If pytest itself cannot be started (e.g. missing from the
             environment) — but **not** on ordinary test failures.
     """
-    root = Path(repo_path)
+    root = Path(repo_path).resolve()
     if not root.exists():
         raise FileNotFoundError(f"Repository path not found: {root}")
 
     with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as tmp:
-        junit_path = tmp.name
+        junit_path = Path(tmp.name).resolve()
 
     try:
         result = subprocess.run(
@@ -65,7 +65,7 @@ def run_tests(repo_path: str | Path, timeout: int = 120) -> list[TestRef]:
             f"{result.stderr or result.stdout}"
         )
 
-    return _parse_junit(junit_path)
+    return _parse_junit(str(junit_path))
 
 
 def _parse_junit(xml_path: str) -> list[TestRef]:

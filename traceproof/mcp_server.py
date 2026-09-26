@@ -128,6 +128,7 @@ def index_repo(repo_path: str) -> dict[str, Any]:
 @mcp.tool(
     description=(
         "Run pytest inside a repository and return individual test results. "
+        "Persists results to <repo>/.traceproof/tests.json for use by the report. "
         "Returns {results: [{node, file, line, passed}], totals: {total, passed, failed, skipped}}."
     )
 )
@@ -142,7 +143,8 @@ def run_tests(repo_path: str) -> dict[str, Any]:
     """
     from traceproof.runner import run_tests as _run
 
-    refs = _run(repo_path)
+    root = Path(repo_path).resolve()
+    refs = _run(root)
     results = [
         {"node": r.node, "file": r.path, "line": r.line, "passed": r.passed}
         for r in refs
@@ -151,6 +153,12 @@ def run_tests(repo_path: str) -> dict[str, Any]:
     passed = sum(1 for r in results if r["passed"] is True)
     failed = sum(1 for r in results if r["passed"] is False)
     skipped = total - passed - failed
+
+    # Persist to .traceproof/tests.json so report/matrix can join pass/fail
+    tests_file = root / _STORE_DIR / "tests.json"
+    tests_file.parent.mkdir(parents=True, exist_ok=True)
+    tests_file.write_text(json.dumps(results, indent=2), encoding="utf-8")
+
     return {
         "results": results,
         "totals": {"total": total, "passed": passed, "failed": failed, "skipped": skipped},
@@ -249,6 +257,104 @@ def record_evidence(
         return f"Evidence rejected by anti-hallucination guard: {exc}"
 
     return ev.to_dict()
+
+
+# ---------------------------------------------------------------------------
+# Tool: record_evidence_batch
+# ---------------------------------------------------------------------------
+
+@mcp.tool(
+    description=(
+        "Validate and append multiple evidence records in a single atomic write. "
+        "records is a list of objects each with the same fields as record_evidence "
+        "(req_id, verdict, code_refs, test_refs, rationale). "
+        "All records are validated before any are written — if any fail the "
+        "anti-hallucination guard the entire batch is rejected. "
+        "Returns {stored: N} on success, or {errors: [...]} on validation failure."
+    )
+)
+def record_evidence_batch(
+    repo_path: str,
+    records: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Record multiple evidence items in one atomic append.
+
+    Args:
+        repo_path: Absolute or relative path to the repository root.
+        records: List of evidence dicts.  Each dict must have the same keys as
+            :func:`record_evidence` (req_id, verdict, code_refs, test_refs, rationale).
+
+    Returns:
+        ``{"stored": N}`` on success, or ``{"errors": [...]}`` when one or more
+        records fail validation (no partial write occurs).
+    """
+    from traceproof.models import CodeRef, Evidence, TestRef, Verdict
+    from traceproof.store import record_batch
+
+    # Load requirements once for severity lookup
+    severity_map: dict[str, str] = {}
+    try:
+        reqs_data = _load_requirements(repo_path)
+        severity_map = {r["req_id"]: r.get("priority", "") for r in reqs_data}
+    except RuntimeError:
+        pass
+
+    evidences: list[Evidence] = []
+    parse_errors: list[str] = []
+
+    for rec in records:
+        req_id = rec.get("req_id", "")
+        verdict_str = rec.get("verdict", "")
+        code_refs_raw = rec.get("code_refs", [])
+        test_refs_raw = rec.get("test_refs", [])
+        rationale = rec.get("rationale", "")
+
+        try:
+            v = Verdict(verdict_str.upper())
+        except ValueError:
+            valid = [x.value for x in Verdict]
+            parse_errors.append(
+                f"[{req_id}] Invalid verdict '{verdict_str}'. Must be one of: {valid}"
+            )
+            continue
+
+        parsed_code: list[CodeRef] = []
+        for ref_str in code_refs_raw:
+            parts = ref_str.rsplit(":", 1)
+            if len(parts) != 2 or not parts[1].isdigit():
+                parse_errors.append(
+                    f"[{req_id}] Malformed code_ref '{ref_str}'. "
+                    "Expected format 'relative/file/path.py:LINE_NUMBER'."
+                )
+                break
+            parsed_code.append(
+                CodeRef(req_id=req_id, path=parts[0], line=int(parts[1]), symbol="")
+            )
+
+        parsed_tests: list[TestRef] = []
+        for node in test_refs_raw:
+            file_part = node.split("::")[0]
+            parsed_tests.append(
+                TestRef(req_id=req_id, path=file_part, line=0, node=node, passed=None)
+            )
+
+        evidences.append(Evidence(
+            req_id=req_id,
+            verdict=v,
+            code_refs=parsed_code,
+            test_refs=parsed_tests,
+            rationale=rationale,
+            severity=severity_map.get(req_id, ""),
+        ))
+
+    if parse_errors:
+        return {"errors": parse_errors}
+
+    errors = record_batch(evidences, repo_path)
+    if errors:
+        return {"errors": errors}
+
+    return {"stored": len(evidences)}
 
 
 # ---------------------------------------------------------------------------

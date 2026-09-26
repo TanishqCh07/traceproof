@@ -9,10 +9,18 @@ An anti-hallucination guard in :func:`record` validates every :class:`CodeRef`
 — the referenced file must exist inside the repo **and** the cited line must
 fall within the file's actual length.  A :class:`ValueError` is raised if
 either check fails.
+
+Concurrency safety
+------------------
+:func:`record` and :func:`record_batch` use a per-file ``threading.Lock``
+(safe for parallel calls inside one process, e.g. MCP server) combined with
+an atomic rename-into-place write so a crash never leaves a truncated store.
 """
 from __future__ import annotations
 
 import json
+import tempfile
+import threading
 from pathlib import Path
 
 from traceproof.models import Evidence
@@ -21,9 +29,20 @@ from traceproof.models import Evidence
 _STORE_DIR = ".traceproof"
 _STORE_FILE = "evidence.json"
 
+# One lock per (resolved) store file path — protects concurrent in-process writers.
+_file_locks: dict[Path, threading.Lock] = {}
+_registry_lock = threading.Lock()
+
+
+def _get_lock(store: Path) -> threading.Lock:
+    with _registry_lock:
+        if store not in _file_locks:
+            _file_locks[store] = threading.Lock()
+        return _file_locks[store]
+
 
 def _store_path(repo_path: str | Path) -> Path:
-    return Path(repo_path) / _STORE_DIR / _STORE_FILE
+    return Path(repo_path).resolve() / _STORE_DIR / _STORE_FILE
 
 
 def _validate_code_refs(evidence: Evidence, repo_path: Path) -> None:
@@ -44,6 +63,30 @@ def _validate_code_refs(evidence: Evidence, repo_path: Path) -> None:
             )
 
 
+def _append_lines(store: Path, lines: list[str]) -> None:
+    """Atomically append *lines* (already JSON-serialised) to *store*.
+
+    Uses a per-path threading.Lock (in-process safety) and an atomic
+    read-append-rename cycle (crash safety) so a partial write never
+    corrupts the store.
+    """
+    lock = _get_lock(store)
+    store.parent.mkdir(parents=True, exist_ok=True)
+    new_content = "\n".join(lines) + "\n"
+
+    with lock:
+        existing = store.read_text(encoding="utf-8") if store.exists() else ""
+        combined = existing + new_content
+        # Write to a sibling temp file then rename for atomicity
+        tmp = Path(tempfile.mktemp(dir=store.parent, prefix=".ev_", suffix=".tmp"))
+        try:
+            tmp.write_text(combined, encoding="utf-8")
+            tmp.replace(store)
+        except Exception:
+            tmp.unlink(missing_ok=True)
+            raise
+
+
 def record(evidence: Evidence, repo_path: str | Path) -> None:
     """Append *evidence* to the store after validating all code references.
 
@@ -57,14 +100,42 @@ def record(evidence: Evidence, repo_path: str | Path) -> None:
             references a file that does not exist under *repo_path*, or cites
             a line number outside the file's actual line count.
     """
-    root = Path(repo_path)
+    root = Path(repo_path).resolve()
     _validate_code_refs(evidence, root)
+    store = _store_path(root)
+    _append_lines(store, [json.dumps(evidence.to_dict())])
+
+
+def record_batch(evidences: list[Evidence], repo_path: str | Path) -> list[str]:
+    """Validate all *evidences* and append them in a single write.
+
+    Validates every record before touching the store — if any record fails the
+    anti-hallucination guard, **no** records are written and a list of error
+    strings is returned instead.
+
+    Args:
+        evidences: List of :class:`~traceproof.models.Evidence` objects to persist.
+        repo_path: Root directory of the repository.
+
+    Returns:
+        Empty list on success, or a list of error message strings when one or
+        more records fail validation.  No partial writes occur.
+    """
+    root = Path(repo_path).resolve()
+    errors: list[str] = []
+    for ev in evidences:
+        try:
+            _validate_code_refs(ev, root)
+        except ValueError as exc:
+            errors.append(str(exc))
+
+    if errors:
+        return errors
 
     store = _store_path(root)
-    store.parent.mkdir(parents=True, exist_ok=True)
-
-    with store.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(evidence.to_dict()) + "\n")
+    lines = [json.dumps(ev.to_dict()) for ev in evidences]
+    _append_lines(store, lines)
+    return []
 
 
 def latest(repo_path: str | Path) -> dict[str, Evidence]:

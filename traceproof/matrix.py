@@ -121,9 +121,13 @@ def build_matrix(
         A :class:`Matrix` with one :class:`MatrixRow` per requirement plus a
         :class:`MatrixSummary`.
     """
-    # Build a fast lookup: test node → passed bool
+    # Build a fast lookup: normalised test node → passed bool.
+    # Normalise to forward slashes so Windows backslash paths match.
+    def _norm_node(node: str) -> str:
+        return node.replace("\\", "/")
+
     node_passed: dict[str, bool | None] = {
-        t.node: t.passed for t in test_results
+        _norm_node(t.node): t.passed for t in test_results
     }
 
     rows: list[MatrixRow] = []
@@ -145,12 +149,26 @@ def build_matrix(
 
         verdict_str = ev.verdict.value
 
+        # Enrich test_refs with current pass/fail from tests.json lookup
+        enriched_tests = []
+        for tr in ev.test_refs:
+            result = node_passed.get(_norm_node(tr.node), tr.passed)
+            if result is not tr.passed:
+                enriched_tests.append(
+                    TestRef(
+                        req_id=tr.req_id,
+                        path=tr.path,
+                        line=tr.line,
+                        node=tr.node,
+                        passed=result,
+                    )
+                )
+            else:
+                enriched_tests.append(tr)
+
         # Downgrade COVERED → UNTESTED if any cited test is currently failing
-        if ev.verdict == Verdict.COVERED and ev.test_refs:
-            any_failing = any(
-                node_passed.get(tr.node, None) is False
-                for tr in ev.test_refs
-            )
+        if ev.verdict == Verdict.COVERED and enriched_tests:
+            any_failing = any(t.passed is False for t in enriched_tests)
             if any_failing:
                 verdict_str = Verdict.UNTESTED.value
 
@@ -161,7 +179,7 @@ def build_matrix(
             verdict=verdict_str,
             rationale=ev.rationale,
             code_refs=ev.code_refs,
-            test_refs=ev.test_refs,
+            test_refs=enriched_tests,
             is_gap=is_gap,
         ))
 

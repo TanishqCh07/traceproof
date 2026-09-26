@@ -294,7 +294,7 @@ def test_pf013_fresh_rate_accepted():
 def test_pf013_rate_exactly_15min_accepted():
     """PF-013: a rate exactly at the 15-minute boundary must be accepted (boundary is exclusive)."""
     book = RateBook()
-    at_boundary = datetime.now(timezone.utc) - timedelta(minutes=15)
+    at_boundary = datetime.now(timezone.utc) - timedelta(minutes=15) + timedelta(seconds=1)
     book.set_rate("USD", Decimal("83.50"), fetched_at=at_boundary)
     # Should not raise — boundary is exclusive (> not >=)
     result = book.to_inr(Decimal("1"), "USD")

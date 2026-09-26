@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "traceproof": {
+      "command": "python",
+      "args": ["-m", "traceproof.mcp_server"],
+      "cwd": "${workspaceFolder}",
+      "timeout": 120,
+      "alwaysAllow": ["extract_requirements", "index_repo", "get_matrix", "get_gaps"]
+    }
+  }
+}

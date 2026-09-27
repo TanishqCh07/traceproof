@@ -21,7 +21,7 @@ Fixed: (1) runner.py resolves repo_path to absolute + resolves junit XML path to
 Bob feature used: Agent mode.
 
 ## 2025 — Remediate all 7 PayFlow gaps (PF-002, PF-004, PF-005, PF-008, PF-009, PF-011, PF-013)
-Fixed: PF-002 MAX_TXN_AMOUNT_INR 200000→100000; PF-005 REFUND_WINDOW 60→30 days; PF-008 mask full PAN to last-4 in log.info; PF-011 added STEP_UP_THRESHOLD_INR + step_up_verified param in authorize(). Replaced test_large_payment_within_limit with spec-correct test_pf002_*. Added 16 new tests covering all 7 gaps across validation.py, service.py, gateway.py, fx.py. RTM: 0/14 gaps, 100% COVERED. Bob feature used: Compliance-auditor mode (3 parallel subagents, failing-test-first, record_evidence per gap).
+Fixed: PF-002 MAX_TXN_AMOUNT_INR 200000→100000; PF-005 REFUND_WINDOW 60→30 days; PF-008 mask full PAN to last-4 in log.info; PF-011 added STEP_UP_THRESHOLD_INR + step_up_verified param in authorize(). Replaced test_large_payment_within_limit with spec-correct test_pf002_*. Added 16 new tests covering all 7 gaps across validation.py, service.py, gateway.py, fx.py. RTM: 0/14 gaps, 100% COVERED. Bob feature used: Remediator custom mode (work split into 3 file-scoped workstreams, executed by the main agent; failing-test-first; record_evidence per gap).
 
 ## 2025 — CI compliance gate
 Added .github/workflows/traceproof.yml (6 steps: root pytest, scan, report, check --min-coverage 100, upload artefact traceproof-rtm, GITHUB_STEP_SUMMARY with coverage%/verdict counts/gaps); created README.md with workflow badge. Steps 2-4 verified locally: scan 14 reqs 27/27 pass, report HTML/CSV/ZIP rendered, check PASSED 100.0%. Downgrade path confirmed in matrix.py (COVERED→UNTESTED when cited test fails, check re-runs tests fresh). 148 tests still green.

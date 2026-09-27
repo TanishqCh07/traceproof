@@ -1,21 +1,31 @@
-In regulated software (payments, banking, healthcare, automotive), shipping code is not enough. Teams must prove that every requirement in the approved specification is implemented and tested. That proof is a Requirements Traceability Matrix (RTM), and today it is built by hand. It takes days before every audit or release, it is stale after the next commit, and it is dangerously error-prone, because green CI creates false confidence. Tests only check what developers remembered to test, and sometimes they lock in the wrong behaviour.
+PROBLEM
 
-Our sample payments service, PayFlow, shows this. All 11 of its tests pass. Yet against its 14-requirement spec, the transaction limit was ₹2,00,000 instead of ₹1,00,000, and a passing test asserted the wrong value. The refund window was 60 days instead of 30. Full card numbers were written to logs, a PCI-DSS violation. The mandatory 2FA step-up for payments above ₹50,000 did not exist, and three more requirements were implemented but never tested. Only 50% of the spec was actually proven, and nothing in the pipeline noticed.
+Regulated software (payments, banking, medical devices, automotive) must follow a written specification of numbered rules, such as "a refund SHALL only be permitted within 30 days" or "card numbers SHALL NEVER be written to logs." Auditors and standards (PCI DSS, IEC 62304, ISO 26262) require proof that every rule is implemented and tested. That proof is a Requirements Traceability Matrix (RTM): one row per requirement, linking it to the code that implements it and the test that proves it.
 
-TraceProof turns a spec document and a repository into a verified, auditor-ready RTM, and keeps it verified on every pull request.
+Today it is built by hand: before each release, an engineer reads each requirement, searches the code, finds a test, judges whether it proves the rule, and fills in a spreadsheet. This workflow fails in three ways:
 
-1. Understand the spec. It extracts every requirement (ID, area, priority, text) from PDF, DOCX or Markdown.
-2. Map the code. It AST-indexes functions, constants and tests with file:line, and runs the real test suite.
-3. Verify with IBM Bob. A custom Compliance Auditor mode compares code literally against the spec and returns one of five verdicts: COVERED, UNTESTED, DRIFT, VIOLATION or MISSING.
-4. Evidence, not opinions. Every verdict is recorded through TraceProof's own MCP server, which rejects any file:line reference that does not exist, so AI cannot invent proof. History is append-only for auditors.
-5. Close the gaps. A Remediator mode fixes each gap test-first: a failing test named after the requirement, the minimal fix, then the full suite.
-6. Ship and guard. It produces an interactive HTML matrix, a CSV and a SHA-256-manifested audit pack, and a GitHub Action fails any pull request that drops coverage or introduces a violation.
+1. Slow: days of work, repeated every release.
+2. Stale: the next commit can silently invalidate a row.
+3. Wrong: teams treat "all tests pass" as proof. Tests only check what someone remembered, and a test can assert the wrong behaviour and still pass.
 
-Measured impact on PayFlow:
-- Audit accuracy: 14 of 14 verdicts matched our ground-truth answer key.
-- Defects found that green CI missed: 4 (two drifts, one PCI violation, one missing control), plus 3 untested requirements.
-- Proven coverage: 50% → 100% after Bob's remediation. PayFlow tests grew from 11 to 27, all passing.
-- Speed: the Bob audit took about 5 minutes and remediation about 6, versus a manual, spreadsheet-driven review.
-- Continuous protection: a pull request that silently changed the refund window back to 60 days was blocked by the CI gate. The gate also caught a flaky boundary test that passed on Windows but failed on Linux.
+Problem statement: proving that code does what its specification says is manual, slow and unreliable, and passing tests are mistaken for proof.
 
-Real specifications have hundreds of requirements, so the saving grows with the size of the spec. The RTM stops being a pre-audit scramble and becomes a living artifact. It serves engineering, QA and compliance teams, and external auditors.
+Our sample payments service, PayFlow, shows the gap. All 11 of its tests pass, yet against its 14-requirement spec: the transaction limit is ₹2,00,000 instead of ₹1,00,000 (and a passing test asserts the wrong value); refunds are allowed for 60 days instead of 30; full card numbers are written to logs (a PCI DSS violation); the mandatory 2FA check above ₹50,000 does not exist; and three more rules are never tested. Only 7 of 14 requirements are proven, while CI is green.
+
+SOLUTION
+
+TraceProof turns a spec and a repository into a verified RTM, fixes the gaps, and keeps them fixed.
+
+1. Read the spec: extracts every requirement (ID, area, priority, text) from PDF, DOCX or Markdown.
+2. Map the code: indexes code and tests with file:line and runs the real test suite.
+3. Verify with IBM Bob: a custom Compliance Auditor mode compares code literally with the spec (30 vs 60 days) and assigns one of five verdicts: COVERED, UNTESTED, DRIFT, VIOLATION or MISSING.
+4. Record evidence safely: verdicts go through TraceProof's own MCP server, which rejects any file:line that does not exist, so AI cannot invent proof.
+5. Fix test-first: a Remediator mode writes a failing requirement-named test, applies the minimal fix, and re-runs the suite.
+6. Report and guard: an interactive RTM dashboard, CSV and hashed audit pack for auditors, plus a GitHub Action that blocks any pull request that breaks a requirement.
+
+RESULTS ON PAYFLOW
+
+- 14 of 14 audit verdicts matched our ground-truth answer key, in about 5 minutes.
+- 4 defects found that green CI missed, plus 3 untested rules.
+- Proven coverage rose from 50% to 100%; tests grew from 11 to 27, all passing.
+- A pull request reverting the refund window to 60 days is blocked from merging. The gate also caught a flaky Windows-vs-Linux test.

@@ -10,9 +10,17 @@
 
 ## The problem
 
-In regulated software (payments, banking, healthcare, automotive), teams must prove that **every requirement in the approved spec is implemented and tested**. That proof is an RTM, and today it is built **by hand in spreadsheets**: slow, stale by the next commit, and error-prone.
+Regulated software (payments, banking, medical devices, automotive) must follow a written **specification**: numbered rules such as *"a refund SHALL only be permitted within 30 days"* or *"card numbers SHALL NEVER be written to logs."* Auditors and standards (PCI DSS, IEC 62304, ISO 26262) require proof that **every rule is implemented and tested**. That proof is a **Requirements Traceability Matrix (RTM)**: one row per rule, linking it to the code that implements it and the test that proves it.
 
-Worse, **green CI creates false confidence.** Our demo service, *PayFlow*, passes **11/11 tests**, yet against its 14-requirement spec:
+Today the RTM is a hand-filled spreadsheet, and it fails in three ways:
+
+- **Slow:** read each rule, search the code, find a test, judge it, type a row. Days of work, every release.
+- **Stale:** the next commit can silently invalidate a row.
+- **Wrong:** teams treat "all tests pass" as proof. Tests only check what someone remembered, and a test can assert the wrong behaviour and still pass.
+
+> **Problem statement:** proving that code does what its specification says is manual, slow and unreliable, and passing tests are mistaken for proof.
+
+**Green CI is not proof.** Our demo service, *PayFlow*, passes **11/11 tests**, yet against its 14-requirement spec:
 
 | Req | Spec says | Code did | Tests |
 |---|---|---|---|

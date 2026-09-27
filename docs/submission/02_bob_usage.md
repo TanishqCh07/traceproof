@@ -24,4 +24,4 @@ Bob's full-repository context mattered most. The MCP server was built directly o
 
 Honest observations. Bob sometimes ran the work itself rather than spawning separate subagents, so our modes now explicitly require delegation. One Bob-written test was flaky at a time boundary (it passed on Windows and failed on Linux), and TraceProof's own CI gate caught it.
 
-Total usage: about 28 of 40 Bobcoins across 11 task sessions.
+Total usage: about 30 of 40 Bobcoins across 10 task sessions.

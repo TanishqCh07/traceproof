@@ -62,8 +62,8 @@ flowchart LR
 | Defects found that green CI missed | **4** (2 drift, 1 PCI violation, 1 missing control) + 3 untested |
 | Proven coverage | **50% → 100%** after Bob remediation |
 | PayFlow tests | 11 → **27** (all passing) |
-| Audit run (Bob) | ~5 min, ~1.9 Bobcoins |
-| Remediation run (Bob) | ~6 min, ~2.2 Bobcoins |
+| Audit run (Bob) | ~5 min, ~2.4 Bobcoins |
+| Remediation run (Bob) | ~6 min, ~2.4 Bobcoins |
 | Regression PR ([#1](https://github.com/TanishqCh07/traceproof/pull/1)) | **Blocked by CI** — PF-005 downgraded, coverage 92.9% |
 | Bonus | The CI gate caught a **flaky boundary test** that passed on Windows but failed on Linux |
 
